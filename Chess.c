@@ -172,6 +172,7 @@ bool check = false; // is the code currently checking for a chess "check"
 
 
 // GOD CHESS BOARD ALL UPDATES ARE KEPT IN HERE
+//Change 0 to 1 at y = 6 x = 3 once testing is complete for check
 uint8_t chessboardNum[8][8] = {
   {15,12,13,19,20,13,12,15},
   {11,11,11,11,11,11,11,11},
