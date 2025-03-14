@@ -8,6 +8,9 @@ We would like to present you the game of chess remastered in its beta fucntional
 Our team is working tirelessly to produce the best chess exprience and we would love your feedback
 
 
+IbrahimA146 is the gitbub
+
+
 WITHOUT FURTHER ADO CHESS 
 
 ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
