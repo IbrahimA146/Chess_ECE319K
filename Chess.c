@@ -176,6 +176,22 @@ bool check = false; // is the code currently checking for a chess "check"
 
 // GOD CHESS BOARD ALL UPDATES ARE KEPT IN HERE
 //Change 0 to 1 at y = 6 x = 3 once testing is complete for check
+/**
+ 0 = no pieces
+ 1 = white pawn
+ 2 = white horse
+ 3 = white bishop
+ 5 = white rook
+ 9 = white queen
+ 10 = white king
+ 11 = black pawn
+ 12 = black horse
+ 13 = black bishop
+ 15 = black rook
+ 19 = black queen
+ 20 = black king
+
+*/
 uint8_t chessboardNum[8][8] = {
   {15,12,13,19,20,13,12,15},
   {11,11,11,11,11,11,11,11},
