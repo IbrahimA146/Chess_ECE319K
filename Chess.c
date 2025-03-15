@@ -400,11 +400,13 @@ uint8_t pawnTakes(int yin, int xin, int yf, int xf)
 uint8_t makePawnMove(int yin, int xin, int yf, int xf)
 {
 
-  pawnTakes(yin, xin, yf, xf);
+  
 
   uint8_t currentID = PieceID(yin,xin);
   uint8_t futureID = PieceID(yf,xf);
   uint8_t res = 0;
+
+  res = pawnTakes(yin, xin, yf, xf);
 
   if((currentID == 1) && ((yin - yf)==1) && (futureID == 0) && ((xin - xf)==0))
   {
