@@ -171,7 +171,24 @@ int main9(void)
 uint8_t xpos; //Keeps important x positions
 uint8_t ypos; //Keeps important y positions
 uint8_t playerKing = 20; //Keeps what kings turn it is (10 for white and 20 for black) P.S (for now it is defaulted at 20 for testing)
-bool check = false; // is the code currently checking for a chess "check"
+bool check = false;
+bool printcheck = true; // is the code currently checking for a chess "check"
+
+#define NA 0
+
+#define WP 1
+#define WH 2
+#define WB 3
+#define WR 5
+#define WQ 9
+#define WK 10
+
+#define BP 11
+#define BH 12
+#define BB 13
+#define BR 15
+#define BQ 19
+#define BK 20
 
 
 // GOD CHESS BOARD ALL UPDATES ARE KEPT IN HERE
@@ -192,20 +209,50 @@ bool check = false; // is the code currently checking for a chess "check"
  20 = black king
 
 */
+
+/**uint8_t chessboardNum[8][8] = {
+  {BR,BH,BB,BQ,BK,BB,BH,BR},
+  {BP,BP,BP,BP,BP,BP,BP,BP},
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {WP,WP,WP,WP,WP,WP,WP,WP},
+  {BR,BH,BB,BQ,BK,BB,BH,BR}
+    
+};
+*/
+
 uint8_t chessboardNum[8][8] = {
-  {15,12,13,19,20,13,12,15},
-  {11,11,11,11,11,11,11,11},
+  {BK,BR,0,0,0,0,0,0},
+  {BR,BR,0,0,0,0,0,0},
+  {0, WH, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {1, 1, 1, 0, 1, 1, 1, 1 },
-  {5, 2, 3, 9, 10,3 ,2, 5 }
+  {WP,WP,WP,WP,WP,WP,WB,WP},
+  {WR,WH,WB,WQ,WK,WB,WH,WR}
     
 };
 
+
+
+
+
 // KEEPS THE PREVIOUS POSITION OF THE BOARD
 uint8_t chessboardNumCheck[8][8] = {
+  {BK,BR,0,0,0,0,0,0},
+  {BR,BR,0,0,0,0,0,0},
+  {0, WH, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {WP,WP,WP,WP,WP,WP,WB,WP},
+  {WR,WH,WB,WQ,WK,WB,WH,WR}
+    
+};
+
+uint8_t chessboardNumSave[8][8] = {
   {15,12,13,19,20,13,12,15},
   {11,11,11,11,11,11,11,11},
   {0, 0, 0, 0, 0, 0, 0, 0 },
@@ -216,6 +263,28 @@ uint8_t chessboardNumCheck[8][8] = {
   {5, 2, 3, 9, 10,3 ,2, 5 }
     
 };
+
+void saveChessboardNum()
+{
+
+   for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            chessboardNumSave[i][j] = chessboardNum[i][j]; // %3u to format as unsigned int with width 3
+        }
+    }
+
+}
+
+void restoreChessboardNum()
+{
+
+   for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            chessboardNum[i][j] = chessboardNumSave[i][j]; // %3u to format as unsigned int with width 3
+        }
+    }
+
+}
 
 //Will print out the array in CIO (aka the software output for strings w/o using serial console)
 void printmyArray()
@@ -381,10 +450,9 @@ uint8_t makeKnightMove(int yin, int xin,int yf, int xf)
   uint8_t currentID = PieceID(yin,xin);
   uint8_t futureID = PieceID(yf,xf);
   uint8_t res = 0;
-  if((futureID == 0) || (((currentID < 10) && (futureID > 10)) || (((currentID > 10) && (futureID < 10)))))
+  if((futureID == 0) || (((currentID < 11) && (futureID > 10)) || (((currentID > 10) && (futureID < 11)))))
   {
-    if((currentID == 2) || currentID == 12)
-    {
+    
       if((yf-yin) == 2 && (((xf - xin) == 1) || ((xin - xf) == 1)))
       {
         res = placePiece( yin, xin, yf, xf, currentID);
@@ -409,7 +477,7 @@ uint8_t makeKnightMove(int yin, int xin,int yf, int xf)
 
       }
 
-    }
+    
 
   }
 
@@ -455,7 +523,7 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp1,xtemp1);
 
-    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 10) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
     {
       flag = true;
       break;
@@ -474,7 +542,7 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp2,xtemp2);
 
-    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 10) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
     {
       flag = true;
       break;
@@ -495,7 +563,7 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp3,xtemp3);
 
-    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 10) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
     {
       flag = true;
       break;
@@ -516,7 +584,7 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp4,xtemp4);
 
-    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 10) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
     {
       flag = true;
       break;
@@ -578,7 +646,7 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp1,xtemp1);
 
-    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 10) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
     {
       flag = true;
       break;
@@ -597,7 +665,7 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp2,xtemp2);
 
-    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 10) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
     {
       flag = true;
       break;
@@ -618,7 +686,7 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp3,xtemp3);
 
-    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 10) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
     {
       flag = true;
       break;
@@ -639,7 +707,7 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp4,xtemp4);
 
-    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 10) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
     {
       flag = true;
       break;
@@ -694,7 +762,7 @@ uint8_t makeKingMove(int yin, int xin,int yf, int xf)
 
   //diagional moves
 
-if((futureID == 0) || (((currentID < 10) && (futureID > 10)) || (((currentID > 10) && (futureID < 10)))))
+if((futureID == 0) || (((currentID < 11) && (futureID > 10)) || (((currentID > 10) && (futureID < 11)))))
 {
   if(((xf - xin) == 1) && ((yf - yin) ==1))
   {
@@ -776,7 +844,7 @@ return res;
  *   5. Resets the check flag before returning the result.
  */
 
-bool isInCheck(int pieceNum)
+bool isInCheck()
 {
   check = true;
   bool res = false;
@@ -785,13 +853,13 @@ bool isInCheck(int pieceNum)
   uint8_t yf = 0;
   uint8_t xf = 0;
   uint8_t resNum = 0;
-  findPiece(pieceNum);
+  findPiece(playerKing);
 
   xin = xpos;
   yin = ypos;
 
 
-  if(pieceNum == 10)
+  if(playerKing == 10)
   {
     for(int i = 0; i < 8; i++)
     {
@@ -841,16 +909,12 @@ bool isInCheck(int pieceNum)
           res = true;
           break;
         }
-
-
-
-      
       }
     }
 
   }
 
-  if(pieceNum == 20)
+  if(playerKing == 20)
   {
     for(int i = 0; i < 8; i++)
     {
@@ -908,7 +972,7 @@ bool isInCheck(int pieceNum)
     }
   }
 
-  if(res)
+  if(res && printcheck)
   {
     printf("Check");
     printf("\n");
@@ -920,13 +984,211 @@ bool isInCheck(int pieceNum)
 
 }
 
-//Sets the chessboardNum to teh previous move stored by chessboardNumCheck
+//Sets the chessboardNum to the previous move stored by chessboardNumCheck
 //Inputs yin, xin, yf, xf, are all the propesed corrdiantes
 //Output none
 void undoMove(int yin, int xin, int yf, int xf)
 {
   chessboardNum[yin][xin] = chessboardNumCheck[yin][xin];
   chessboardNum[yf][xf] = chessboardNumCheck[yf][xf];
+
+}
+
+bool isCheckMate()
+{
+
+  saveChessboardNum();
+  uint8_t res = 255;
+  bool checkmate = true;
+  //check = true;
+  printcheck = false;
+  bool iteratteloop = false;
+
+  uint8_t xin;
+  uint8_t yin;
+  uint8_t yf;
+  uint8_t xf;
+
+  uint8_t xin_1;
+  uint8_t yin_1;
+  uint8_t yf_1;
+  uint8_t xf_1;
+
+
+
+  for(int i = 0; i < 8; i++)
+  {
+    if(!checkmate)
+              {
+                break;
+              }
+    for(int j = 0; j < 8; j++) 
+    {
+      if(!checkmate)
+              {
+
+                break;
+              }
+      for(int k = 0; k < 8; k++)
+      {
+        if(!checkmate)
+              {
+                break;
+              }
+        for(int l = 0; l < 8; l++)
+        {
+
+          yin = i;
+          xin = j;
+          yf = k;
+          xf = l;
+
+          uint8_t currentID = PieceID(yin,xin);
+
+          if(((currentID >10) && (playerKing == 20)) || ((currentID <11) && (playerKing == 10)))
+          {
+
+            if((currentID == 1) || currentID == 11)
+            {
+              saveChessboardNum();
+              res = makePawnMove(yin,xin,yf,xf);
+              if(res == 1)
+              {
+                checkmate = isInCheck();
+                restoreChessboardNum();
+                if(!checkmate)
+                  {
+
+                    yin_1 = yin;
+                    xin_1 = xin;
+                    yf_1 = yf;
+                    xf_1 = xf;
+                    break;
+                  }
+              }
+              
+    
+            }
+
+          if((currentID == 2) || currentID == 12)
+            {
+              saveChessboardNum();
+              res = makeKnightMove(yin,xin,yf,xf);
+              if(res == 1)
+              {
+                checkmate = isInCheck();
+                restoreChessboardNum();
+                if(!checkmate)
+                  {
+                    yin_1 = yin;
+                    xin_1 = xin;
+                    yf_1 = yf;
+                    xf_1 = xf;
+                    break;
+                  }
+              }
+
+            }
+
+          if((currentID == 3) || currentID == 13)
+            {
+              saveChessboardNum();
+              res = makeBishopMove(yin,xin,yf,xf);
+              if(res == 1)
+              {
+                checkmate = isInCheck();
+                restoreChessboardNum();
+                if(!checkmate)
+                  {
+                    yin_1 = yin;
+                    xin_1 = xin;
+                    yf_1 = yf;
+                    xf_1 = xf;
+                    break;
+                  }
+              }
+
+            }
+
+          if((currentID == 5) || currentID == 15)
+            {
+              saveChessboardNum();
+              res = makeRookMove(yin,xin,yf,xf);
+              if(res == 1)
+              {
+                checkmate = isInCheck();
+                restoreChessboardNum();
+                if(!checkmate)
+                  {
+                    yin_1 = yin;
+                    xin_1 = xin;
+                    yf_1 = yf;
+                    xf_1 = xf;
+                    break;
+                  }
+              }
+
+            }
+
+          if((currentID == 9) || currentID == 19)
+            {
+              saveChessboardNum();
+              res = makeQueenMove(yin,xin,yf,xf);
+              if(res == 1)
+              {
+                checkmate = isInCheck();
+                restoreChessboardNum();
+                if(!checkmate)
+                  {
+                    yin_1 = yin;
+                    xin_1 = xin;
+                    yf_1 = yf;
+                    xf_1 = xf;
+                    break;
+                  }
+              }
+
+            }
+
+          if((currentID == 10) || currentID == 20)
+            {
+              saveChessboardNum();
+              res = makeKingMove(yin,xin,yf,xf);
+              if(res == 1)
+              {
+                checkmate = isInCheck();
+                restoreChessboardNum();
+                if(!checkmate)
+                  {
+                    yin_1 = yin;
+                    xin_1 = xin;
+                    yf_1 = yf;
+                    xf_1 = xf;
+                    break;
+                  }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+
+  if(checkmate)
+  {
+    printf("Checkmate");
+
+    printf("\n");
+  }
+
+  printcheck = true;
+
+  //check = false;
+  restoreChessboardNum();
+  return checkmate;
+  
 
 }
 
@@ -950,14 +1212,16 @@ void undoMove(int yin, int xin, int yf, int xf)
 
 //This function will make a move stored in chessboardNum
 //Inputs yin, xin, yf, xf, are all the propesed corrdiantes
-//Output returns res: 1 meaning the move was executed 255 meaning its an invalid move 0 meaning that the function is broken
+//Output returns res: 1 meaning the move was executed 255 meaning its an invalid move 0 meaning that piece was found but couldnt be moved
 uint8_t makeMove(int yin, int xin,int yf, int xf)
 {
   uint8_t currentID = PieceID(yin,xin);
   uint8_t res = 255;
+  bool discoveredCheck = false;
 
 do
 {
+  discoveredCheck = false;
   if((currentID == 1) || currentID == 11)
   {
     res = makePawnMove(yin,xin,yf,xf);
@@ -999,16 +1263,20 @@ do
 
   }
 
-if((isInCheck(playerKing)) && ((((playerKing == 10)) && (chessboardNum[yf][xf] < 10)) ||(((playerKing == 20)) && (chessboardNum[yf][xf] > 10)))) //discovered check
+if((isInCheck()) && ((((playerKing == 10)) && (chessboardNum[yf][xf] < 10)) || (((playerKing == 20)) && (chessboardNum[yf][xf] > 10)))) //discovered check
 {
   undoMove(yin,xin,yf,xf);
+  discoveredCheck = true;
 }
 
+if(isCheckMate())
+{
+  break;
 }
 
 
-
-while((isInCheck(playerKing)) && ((((playerKing == 10)) && (chessboardNum[yf][xf] < 10)) ||(((playerKing == 20)) && (chessboardNum[yf][xf] > 10)))); //discovered check
+}
+while((isInCheck()) && (discoveredCheck)); //discovered check
 
     chessboardNumCheck[yin][xin] = 0;
     chessboardNumCheck[yf][xf] = currentID;
@@ -1024,6 +1292,8 @@ while((isInCheck(playerKing)) && ((((playerKing == 10)) && (chessboardNum[yf][xf
 
   
 }
+
+
 
 //Have fun creating your own chess games
 //Only need to use makeMove(x1,y1,x2,y2) and printmyArray() to move pieces
@@ -1060,6 +1330,7 @@ int main(void)
     printmyArray();
     */
 
+    /**
     makeMove(7,3,6,3);
     printmyArray();
     makeMove(6,3,3,0);
@@ -1069,6 +1340,20 @@ int main(void)
     makeMove(3,0,4,0);
     printmyArray();
     makeMove(1,3,3,3);
+    printmyArray();
+    makeMove(4,0,1,3);
+    printmyArray();
+    makeMove(0,3,1,3);
+    printmyArray();
+    */
+    printmyArray();
+    makeMove(1,3,6,3);
+    printmyArray();
+    makeMove(2,2,5,2);
+    printmyArray();
+    makeMove(6,6,2,2);
+    printmyArray();
+    makeMove(1,1,2,1);
     printmyArray();
     
     
