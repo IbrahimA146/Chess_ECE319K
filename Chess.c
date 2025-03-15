@@ -383,7 +383,7 @@ uint8_t pawnTakes(int yin, int xin, int yf, int xf)
 
   }
 
-  if((currentID == 11) && ((yf - yin)==1) && (futureID < 10) && (((xin - xf) == 1) || ((xf - xin) == 1)))
+  if((currentID == 11) && ((yf - yin)==1) && (futureID < 11) && (((xin - xf) == 1) || ((xf - xin) == 1)))
   {
 
     res = placePiece( yin, xin, yf, xf, currentID);
@@ -523,7 +523,7 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp1,xtemp1);
 
-    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
     {
       flag = true;
       break;
@@ -542,7 +542,7 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp2,xtemp2);
 
-    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
     {
       flag = true;
       break;
@@ -563,7 +563,7 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp3,xtemp3);
 
-    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
     {
       flag = true;
       break;
@@ -584,7 +584,7 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp4,xtemp4);
 
-    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
     {
       flag = true;
       break;
@@ -646,7 +646,7 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp1,xtemp1);
 
-    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
     {
       flag = true;
       break;
@@ -665,7 +665,7 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp2,xtemp2);
 
-    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
     {
       flag = true;
       break;
@@ -686,7 +686,7 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp3,xtemp3);
 
-    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
     {
       flag = true;
       break;
@@ -707,7 +707,7 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 
     tempID = PieceID(ytemp4,xtemp4);
 
-    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 10))))))
+    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
     {
       flag = true;
       break;
@@ -1263,7 +1263,7 @@ do
 
   }
 
-if((isInCheck()) && ((((playerKing == 10)) && (chessboardNum[yf][xf] < 10)) || (((playerKing == 20)) && (chessboardNum[yf][xf] > 10)))) //discovered check
+if((isInCheck()) && ((((playerKing == 10)) && (chessboardNum[yf][xf] < 11)) || (((playerKing == 20)) && (chessboardNum[yf][xf] > 10)))) //discovered check
 {
   undoMove(yin,xin,yf,xf);
   discoveredCheck = true;
@@ -1359,11 +1359,3 @@ int main(void)
     
 
 }
-
-
-
-
-
-
-
-
