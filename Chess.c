@@ -224,14 +224,14 @@ bool printcheck = true; // is the code currently checking for a chess "check"
 */
 
 uint8_t chessboardNum[8][8] = {
-  {BK,BR,0,0,0,0,0,0},
-  {BR,BR,0,0,0,0,0,0},
-  {0, WH, 0, 0, 0, 0, 0, 0 },
+  {BR,BH,BB,BQ,BK,BB,BH,BR},
+  {BP,BP,BP,BP,BP,BP,BP,BP},
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
-  {WP,WP,WP,WP,WP,WP,WB,WP},
-  {WR,WH,WB,WQ,WK,WB,WH,WR}
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {WP,WP,WP,WP,WP,WP,WP,WP},
+  {BR,BH,BB,BQ,BK,BB,BH,BR}
     
 };
 
@@ -375,20 +375,28 @@ uint8_t pawnTakes(int yin, int xin, int yf, int xf)
   uint8_t currentID = PieceID(yin,xin);
   uint8_t futureID = PieceID(yf,xf);
   uint8_t res = 0;
-  if((currentID == 1) && ((yin - yf)==1) && (futureID > 10) && (((xin - xf) == 1) || ((xf - xin) == 1)))
+
+  if((((currentID < 11) && (futureID > 10)) || (((currentID > 10) && (futureID < 11)))))
   {
+
+     if(((yin - yf)==1) && (((xin - xf) == 1) || ((xf - xin) == 1)))
+    {
 
     
-    res = placePiece( yin, xin, yf, xf, currentID);
+      res = placePiece( yin, xin, yf, xf, currentID);
+
+    }
+
+    if(((yf - yin)==1) && (((xin - xf) == 1) || ((xf - xin) == 1)))
+      {
+
+        res = placePiece( yin, xin, yf, xf, currentID);
+
+      }
 
   }
 
-  if((currentID == 11) && ((yf - yin)==1) && (futureID < 11) && (((xin - xf) == 1) || ((xf - xin) == 1)))
-  {
-
-    res = placePiece( yin, xin, yf, xf, currentID);
-
-  }
+ 
 
   return res;
 }
