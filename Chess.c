@@ -241,26 +241,26 @@ uint8_t chessboardNum[8][8] = {
 
 // KEEPS THE PREVIOUS POSITION OF THE BOARD
 uint8_t chessboardNumCheck[8][8] = {
-  {BK,BR,0,0,0,0,0,0},
-  {BR,BR,0,0,0,0,0,0},
-  {0, WH, 0, 0, 0, 0, 0, 0 },
+  {BR,BH,BB,BQ,BK,BB,BH,BR},
+  {BP,BP,BP,BP,BP,BP,BP,BP},
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
-  {WP,WP,WP,WP,WP,WP,WB,WP},
-  {WR,WH,WB,WQ,WK,WB,WH,WR}
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {WP,WP,WP,WP,WP,WP,WP,WP},
+  {BR,BH,BB,BQ,BK,BB,BH,BR}
     
 };
 
 uint8_t chessboardNumSave[8][8] = {
-  {15,12,13,19,20,13,12,15},
-  {11,11,11,11,11,11,11,11},
+  {BR,BH,BB,BQ,BK,BB,BH,BR},
+  {BP,BP,BP,BP,BP,BP,BP,BP},
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
-  {1, 1, 1, 1, 1, 1, 1, 1 },
-  {5, 2, 3, 9, 10,3 ,2, 5 }
+  {WP,WP,WP,WP,WP,WP,WP,WP},
+  {BR,BH,BB,BQ,BK,BB,BH,BR}
     
 };
 
@@ -1058,7 +1058,7 @@ bool isCheckMate()
           if(((currentID >10) && (playerKing == 20)) || ((currentID <11) && (playerKing == 10)))
           {
 
-            if((currentID == 1) || currentID == 11)
+            if((currentID == 1) || (currentID == 11))
             {
               saveChessboardNum();
               res = makePawnMove(yin,xin,yf,xf);
@@ -1080,7 +1080,7 @@ bool isCheckMate()
     
             }
 
-          if((currentID == 2) || currentID == 12)
+          if((currentID == 2) || (currentID == 12))
             {
               saveChessboardNum();
               res = makeKnightMove(yin,xin,yf,xf);
@@ -1100,7 +1100,7 @@ bool isCheckMate()
 
             }
 
-          if((currentID == 3) || currentID == 13)
+          if((currentID == 3) || (currentID == 13))
             {
               saveChessboardNum();
               res = makeBishopMove(yin,xin,yf,xf);
@@ -1120,7 +1120,7 @@ bool isCheckMate()
 
             }
 
-          if((currentID == 5) || currentID == 15)
+          if((currentID == 5) || (currentID == 15))
             {
               saveChessboardNum();
               res = makeRookMove(yin,xin,yf,xf);
@@ -1140,7 +1140,7 @@ bool isCheckMate()
 
             }
 
-          if((currentID == 9) || currentID == 19)
+          if((currentID == 9) || (currentID == 19))
             {
               saveChessboardNum();
               res = makeQueenMove(yin,xin,yf,xf);
@@ -1160,7 +1160,7 @@ bool isCheckMate()
 
             }
 
-          if((currentID == 10) || currentID == 20)
+          if((currentID == 10) || (currentID == 20))
             {
               saveChessboardNum();
               res = makeKingMove(yin,xin,yf,xf);
@@ -1232,41 +1232,41 @@ uint8_t makeMove(int yin, int xin,int yf, int xf)
 do
 {
   discoveredCheck = false;
-  if((currentID == 1) || currentID == 11)
+  if((currentID == 1) || (currentID == 11))
   {
     res = makePawnMove(yin,xin,yf,xf);
     
   }
 
-  if((currentID == 2) || currentID == 12)
+  if((currentID == 2) || (currentID == 12))
   {
 
     res = makeKnightMove(yin,xin,yf,xf);
 
   }
 
-  if((currentID == 3) || currentID == 13)
+  if((currentID == 3) || (currentID == 13))
   {
 
     res = makeBishopMove(yin,xin,yf,xf);
 
   }
 
-  if((currentID == 5) || currentID == 15)
+  if((currentID == 5) || (currentID == 15))
   {
 
     res = makeRookMove(yin,xin,yf,xf);
 
   }
 
-  if((currentID == 9) || currentID == 19)
+  if((currentID == 9) || (currentID == 19))
   {
 
     res = makeQueenMove(yin,xin,yf,xf);
 
   }
 
-  if((currentID == 10) || currentID == 20)
+  if((currentID == 10) || (currentID == 20))
   {
 
     res = makeKingMove(yin,xin,yf,xf);
