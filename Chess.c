@@ -174,24 +174,6 @@ uint8_t playerKing = 20; //Keeps what kings turn it is (10 for white and 20 for 
 bool check = false;
 bool printcheck = true; // is the code currently checking for a chess "check"
 
-#define NA 0
-
-#define WP 1
-#define WH 2
-#define WB 3
-#define WR 5
-#define WQ 9
-#define WK 10
-
-#define BP 11
-#define BH 12
-#define BB 13
-#define BR 15
-#define BQ 19
-#define BK 20
-
-
-// GOD CHESS BOARD ALL UPDATES ARE KEPT IN HERE
 //Change 0 to 1 at y = 6 x = 3 once testing is complete for check
 /**
  0 = no pieces
@@ -210,18 +192,24 @@ bool printcheck = true; // is the code currently checking for a chess "check"
 
 */
 
-/**uint8_t chessboardNum[8][8] = {
-  {BR,BH,BB,BQ,BK,BB,BH,BR},
-  {BP,BP,BP,BP,BP,BP,BP,BP},
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {WP,WP,WP,WP,WP,WP,WP,WP},
-  {BR,BH,BB,BQ,BK,BB,BH,BR}
-    
-};
-*/
+#define NA 0
+
+#define WP 1
+#define WH 2
+#define WB 3
+#define WR 5
+#define WQ 9
+#define WK 10
+
+#define BP 11
+#define BH 12
+#define BB 13
+#define BR 15
+#define BQ 19
+#define BK 20
+
+
+// GOD CHESS BOARD ALL UPDATES ARE KEPT IN HERE
 
 uint8_t chessboardNum[8][8] = {
   {BR,BH,BB,BQ,BK,BB,BH,BR},
@@ -231,13 +219,22 @@ uint8_t chessboardNum[8][8] = {
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {WP,WP,WP,WP,WP,WP,WP,WP},
-  {BR,BH,BB,BQ,BK,BB,BH,BR}
+  {WR,WH,WB,WQ,WK,WB,WH,WR}
     
 };
 
-
-
-
+/**uint8_t chessboardNum[8][8] = {
+  {BR,BH,BB,BQ,BK,BB,BH,BR},
+  {BP,BP,BP,BP,BP,BP,BP,BP},
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {WP,WP,WP,WP,WP,WP,WP,WP},
+  {WR,WH,WB,WQ,WK,WB,WH,WR}
+    
+};
+*/
 
 // KEEPS THE PREVIOUS POSITION OF THE BOARD
 uint8_t chessboardNumCheck[8][8] = {
@@ -248,10 +245,11 @@ uint8_t chessboardNumCheck[8][8] = {
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {WP,WP,WP,WP,WP,WP,WP,WP},
-  {BR,BH,BB,BQ,BK,BB,BH,BR}
+  {WR,WH,WB,WQ,WK,WB,WH,WR}
     
 };
 
+//Array in which saveChessboardNum uses()
 uint8_t chessboardNumSave[8][8] = {
   {BR,BH,BB,BQ,BK,BB,BH,BR},
   {BP,BP,BP,BP,BP,BP,BP,BP},
@@ -260,27 +258,30 @@ uint8_t chessboardNumSave[8][8] = {
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {0, 0, 0, 0, 0, 0, 0, 0 },
   {WP,WP,WP,WP,WP,WP,WP,WP},
-  {BR,BH,BB,BQ,BK,BB,BH,BR}
+  {WR,WH,WB,WQ,WK,WB,WH,WR}
     
 };
 
+
+//SAVES THE CHESS BOARD TO WHAT WAS INPUTED IN chessboardNum[][] into chessboardSave[][]
 void saveChessboardNum()
 {
 
    for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            chessboardNumSave[i][j] = chessboardNum[i][j]; // %3u to format as unsigned int with width 3
+            chessboardNumSave[i][j] = chessboardNum[i][j]; // puts chessboardNum into chessboardNumSave
         }
     }
 
 }
 
+//RESORES THE CHESS BOARD TO WHAT WAS INPUTED IN chessboardSave[][] into chessboardNum[][]
 void restoreChessboardNum()
 {
 
    for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            chessboardNum[i][j] = chessboardNumSave[i][j]; // %3u to format as unsigned int with width 3
+            chessboardNum[i][j] = chessboardNumSave[i][j]; // puts chessboardNumSave[][] into chessboardNum[][]
         }
     }
 
@@ -296,7 +297,7 @@ void printmyArray()
         printf("\n"); // Newline after each row
     }
 
-    printf("\n");
+    printf("\n"); // double new line after each chess array
 
     printf("\n");
 }
@@ -311,10 +312,10 @@ void findPiece(uint8_t pieceNum)
   {
     for(int j = 0; j < 8; j++)
     {
-      if(chessboardNum[i][j] == pieceNum)
+      if(chessboardNum[i][j] == pieceNum) // finds the piece (king or queen (only when there is 1 queen))
       {
-        ypos = i;
-        xpos = j;
+        ypos = i; // puts x corrdinate of piece
+        xpos = j; // puts y corrdicate of piece
       }
     }
   }
@@ -335,7 +336,7 @@ void findPiece(uint8_t pieceNum)
 
 uint8_t PieceID(int yin, int xin)
 {
-  uint8_t num = (uint8_t)chessboardNum[yin][xin];
+  uint8_t num = (uint8_t)chessboardNum[yin][xin]; // finds id of the given square and returns it
   return num;
 
 }
@@ -347,10 +348,10 @@ uint8_t PieceID(int yin, int xin)
 uint8_t placePiece(int yin, int xin, int yf, int xf, uint8_t currentID)
 {
 
-  if(!check)
+  if(!check) // gets the gloabl value of check and sees whether the function is propsing a check search or an actual palcement
   {
-    chessboardNum[yin][xin] = 0;
-    chessboardNum[yf][xf] = currentID;
+    chessboardNum[yin][xin] = 0; // puts 0 in the current value
+    chessboardNum[yf][xf] = currentID; // updates the future corrdiante to the current piece id (moving the piece)
     
 
   }
@@ -372,14 +373,15 @@ uint8_t placePiece(int yin, int xin, int yf, int xf, uint8_t currentID)
 
 uint8_t pawnTakes(int yin, int xin, int yf, int xf)
 {
-  uint8_t currentID = PieceID(yin,xin);
-  uint8_t futureID = PieceID(yf,xf);
-  uint8_t res = 0;
 
-  if((((currentID < 11) && (futureID > 10)) || (((currentID > 10) && (futureID < 11)))))
+  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
+  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
+  uint8_t res = 0; // returns 0 if pawnTakes doesnt take any conditionals
+
+  if(((currentID != 0) && (currentID < 11) && (futureID > 10)) || (((currentID > 10) && (futureID < 11)))) // is it a valid move? THIS FUNCTION DOESNT WEED OUT IF CURRENTID IS A PAWN
   {
 
-     if(((yin - yf)==1) && (((xin - xf) == 1) || ((xf - xin) == 1)))
+     if(((yin - yf)==1) && (((xin - xf) == 1) || ((xf - xin) == 1))) // checks if the direction is a pawn taking 
     {
 
     
@@ -387,10 +389,10 @@ uint8_t pawnTakes(int yin, int xin, int yf, int xf)
 
     }
 
-    if(((yf - yin)==1) && (((xin - xf) == 1) || ((xf - xin) == 1)))
+    if(((yf - yin)==1) && (((xin - xf) == 1) || ((xf - xin) == 1))) // checks if the direction is a pawn taking 
       {
 
-        res = placePiece( yin, xin, yf, xf, currentID);
+        res = placePiece( yin, xin, yf, xf, currentID); 
 
       }
 
@@ -408,15 +410,13 @@ uint8_t pawnTakes(int yin, int xin, int yf, int xf)
 uint8_t makePawnMove(int yin, int xin, int yf, int xf)
 {
 
-  
+  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
+  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
+  uint8_t res = 0; // returns 0 if makePawnMove doesnt take any conditionals
 
-  uint8_t currentID = PieceID(yin,xin);
-  uint8_t futureID = PieceID(yf,xf);
-  uint8_t res = 0;
+  res = pawnTakes(yin, xin, yf, xf); // calls pawnTakes() and returns result since it is a legal move
 
-  res = pawnTakes(yin, xin, yf, xf);
-
-  if((currentID == 1) && ((yin - yf)==1) && (futureID == 0) && ((xin - xf)==0))
+  if((currentID == 1) && ((yin - yf)==1) && (futureID == 0) && ((xin - xf)==0)) // Single foward move and checks valildity if currentID is a pawn
   {
 
     res = placePiece( yin, xin, yf, xf, currentID);
@@ -424,21 +424,21 @@ uint8_t makePawnMove(int yin, int xin, int yf, int xf)
   }
 
 
-  if((currentID == 11) && ((yf - yin)==1) && (futureID == 0) && ((xin - xf)==0))
+  if((currentID == 11) && ((yf - yin)==1) && (futureID == 0) && ((xin - xf)==0)) // Single foward move and checks valildity if currentID is a pawn
   {
 
     res = placePiece( yin, xin, yf, xf, currentID);
 
   }
 
-  if((currentID == 11) && ((yf - yin)==2) && (yin == 1) && (futureID == 0) && ((xin - xf)==0))
+  if((currentID == 11) && ((yf - yin)==2) && (yin == 1) && (futureID == 0) && ((xin - xf)==0)) // Double foward move at begining and checks valildity if currentID is a pawn
   {
 
     res = placePiece( yin, xin, yf, xf, currentID);
 
   }
 
-  if((currentID == 1) && ((yin - yf)==2) && (yin == 6) && (futureID == 0)&& ((xin - xf)==0))
+  if((currentID == 1) && ((yin - yf)==2) && (yin == 6) && (futureID == 0)&& ((xin - xf)==0)) // Double foward move at begining and checks valildity if currentID is a pawn
   {
 
     res = placePiece( yin, xin, yf, xf, currentID);
@@ -457,31 +457,32 @@ uint8_t makePawnMove(int yin, int xin, int yf, int xf)
 
 uint8_t makeKnightMove(int yin, int xin,int yf, int xf)
 {
-  uint8_t currentID = PieceID(yin,xin);
-  uint8_t futureID = PieceID(yf,xf);
-  uint8_t res = 0;
-  if((futureID == 0) || (((currentID < 11) && (futureID > 10)) || (((currentID > 10) && (futureID < 11)))))
+  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
+  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
+  uint8_t res = 0; // returns 0 if makeKnightMove doesnt take any conditionals
+
+  if((futureID == 0) || (((currentID < 11) && (futureID > 10)) || (((currentID > 10) && (futureID < 11))))) // is it a valid move? THIS FUNCTION DOESNT WEED OUT IF CURRENTID IS A KNIGHT
   {
     
-      if((yf-yin) == 2 && (((xf - xin) == 1) || ((xin - xf) == 1)))
+      if((yf-yin) == 2 && (((xf - xin) == 1) || ((xin - xf) == 1))) // 2 knight moves
       {
         res = placePiece( yin, xin, yf, xf, currentID);
 
       }
 
-      if((yf-yin) == -2 && (((xf - xin) == 1) || ((xin - xf) == 1)))
+      if((yf-yin) == -2 && (((xf - xin) == 1) || ((xin - xf) == 1))) // 2 knight moves
       {
         res = placePiece( yin, xin, yf, xf, currentID);
 
       }
 
-      if((yf-yin) == 1 && (((xf - xin) == 2) || ((xin - xf) == 2)))
+      if((yf-yin) == 1 && (((xf - xin) == 2) || ((xin - xf) == 2))) // 2 knight moves
       {
         res = placePiece( yin, xin, yf, xf, currentID);
 
       }
 
-      if((yf-yin) == -1 && (((xf - xin) == 2) || ((xin - xf) == 2)))
+      if((yf-yin) == -1 && (((xf - xin) == 2) || ((xin - xf) == 2))) // 2 knight moves
       {
         res = placePiece( yin, xin, yf, xf, currentID);
 
@@ -506,40 +507,40 @@ uint8_t makeKnightMove(int yin, int xin,int yf, int xf)
 uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 {
 
-  uint8_t currentID = PieceID(yin,xin);
-  uint8_t futureID = PieceID(yf,xf);
-  uint8_t res = 0;
-  uint8_t xtemp1 = xin;
-  uint8_t ytemp1 = yin;
-  uint8_t xtemp2 = xin;
-  uint8_t ytemp2 = yin;
-  uint8_t xtemp3 = xin;
-  uint8_t ytemp3 = yin;
-  uint8_t xtemp4 = xin;
-  uint8_t ytemp4 = yin;
-  uint8_t tempID = currentID;
-  bool flag = false;
-  bool flag1 = true;
-  bool flag2 = true;
-  bool flag3 = true;
-  bool flag4 = true;
+  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
+  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
+  uint8_t res = 0; // returns 0 if makeBishopMove doesnt take any conditionals
+  uint8_t xtemp1 = xin; // tempVar for initial x val
+  uint8_t ytemp1 = yin; //tempVar for initial y val
+  uint8_t xtemp2 = xin; // tempVar for initial x val
+  uint8_t ytemp2 = yin; //tempVar for initial y val
+  uint8_t xtemp3 = xin; // tempVar for initial x val
+  uint8_t ytemp3 = yin; //tempVar for initial y val
+  uint8_t xtemp4 = xin; // tempVar for initial x val
+  uint8_t ytemp4 = yin; //tempVar for initial y val
+  uint8_t tempID = currentID; //tempId is initalized to currentID
+  bool flag = false; //overall flag if the function hits a conditional
+  bool flag1 = true; // flag for when pathway is not empty
+  bool flag2 = true; // flag for when pathway is not empty
+  bool flag3 = true; // flag for when pathway is not empty
+  bool flag4 = true; // flag for when pathway is not empty
 
 
 
   for(int i = 0; i < 8; i++)
   {
-    xtemp1 += 1;
-    ytemp1 += 1;
+    xtemp1 += 1; //checking one possible pathway
+    ytemp1 += 1; //checking one possible pathway
 
-    tempID = PieceID(ytemp1,xtemp1);
+    tempID = PieceID(ytemp1,xtemp1); // tempID = to xtemp1 and ytemp1
 
-    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
+    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether bisop has made it to its destination
     {
-      flag = true;
+      flag = true; //is a valid move
       break;
     }
 
-    if(tempID != 0)
+    if(tempID != 0) // something is in the way and therefore the bishop can no longer continue on this path
     {
 
       flag1 = false;
@@ -547,12 +548,12 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 
     }
 
-    xtemp2 -= 1;
-    ytemp2 += 1;
+    xtemp2 -= 1; // checking one possible pathway
+    ytemp2 += 1; // checking one possible pathway
 
-    tempID = PieceID(ytemp2,xtemp2);
+    tempID = PieceID(ytemp2,xtemp2); // tempID = to xtemp2 and ytemp2
 
-    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
+    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether bisop has made it to its destination
     {
       flag = true;
       break;
@@ -568,18 +569,18 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 
     
 
-    xtemp3 += 1;
-    ytemp3 -= 1;
+    xtemp3 += 1; // checking one possible pathway
+    ytemp3 -= 1; // checking one possible pathway
 
-    tempID = PieceID(ytemp3,xtemp3);
+    tempID = PieceID(ytemp3,xtemp3); // tempID = to xtemp3 and ytemp3
 
-    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
+    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether bisop has made it to its destination
     {
-      flag = true;
+      flag = true; //is a valid move
       break;
     }
 
-    if(tempID != 0)
+    if(tempID != 0) // something is in the way and therefore the bishop can no longer continue on this path
     {
 
       flag3 = false;
@@ -589,18 +590,18 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 
     
 
-    xtemp4 -= 1;
-    ytemp4 -= 1;
+    xtemp4 -= 1; // checking one possible pathway
+    ytemp4 -= 1; // checking one possible pathway
 
-    tempID = PieceID(ytemp4,xtemp4);
+    tempID = PieceID(ytemp4,xtemp4); // tempID = to xtemp4 and ytemp4
 
-    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
+    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether bisop has made it to its destination
     {
-      flag = true;
+      flag = true; //is a valid move
       break;
     }
 
-    if(tempID != 0)
+    if(tempID != 0) // something is in the way and therefore the bishop can no longer continue on this path
     {
 
       flag4 = false;
@@ -613,7 +614,7 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
   if(flag)
   {
 
-        res = placePiece( yin, xin, yf, xf, currentID);
+        res = placePiece( yin, xin, yf, xf, currentID); // places bishop if flag is true
 
 
   }
@@ -629,40 +630,40 @@ uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
 uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 {
 
-  uint8_t currentID = PieceID(yin,xin);
-  uint8_t futureID = PieceID(yf,xf);
-  uint8_t res = 0;
-  uint8_t xtemp1 = xin;
-  uint8_t ytemp1 = yin;
-  uint8_t xtemp2 = xin;
-  uint8_t ytemp2 = yin;
-  uint8_t xtemp3 = xin;
-  uint8_t ytemp3 = yin;
-  uint8_t xtemp4 = xin;
-  uint8_t ytemp4 = yin;
-  uint8_t tempID = currentID;
-  bool flag = false;
-  bool flag1 = true;
-  bool flag2 = true;
-  bool flag3 = true;
-  bool flag4 = true;
+  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
+  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
+  uint8_t res = 0; // returns 0 if makeBishopMove doesnt take any conditionals
+  uint8_t xtemp1 = xin; // tempVar for initial x val
+  uint8_t ytemp1 = yin; //tempVar for initial y val
+  uint8_t xtemp2 = xin; // tempVar for initial x val
+  uint8_t ytemp2 = yin; //tempVar for initial y val
+  uint8_t xtemp3 = xin; // tempVar for initial x val
+  uint8_t ytemp3 = yin; //tempVar for initial y val
+  uint8_t xtemp4 = xin; // tempVar for initial x val
+  uint8_t ytemp4 = yin; //tempVar for initial y val
+  uint8_t tempID = currentID; //tempId is initalized to currentID
+  bool flag = false; //overall flag if the function hits a conditional
+  bool flag1 = true; // flag for when pathway is not empty
+  bool flag2 = true; // flag for when pathway is not empty
+  bool flag3 = true; // flag for when pathway is not empty
+  bool flag4 = true; // flag for when pathway is not empty
 
 
 
   for(int i = 0; i < 8; i++)
   {
-    xtemp1 += 1;
-    ytemp1 += 0;
+    xtemp1 += 1; // checking one possible pathway
+    ytemp1 += 0; // checking one possible pathway
 
-    tempID = PieceID(ytemp1,xtemp1);
+    tempID = PieceID(ytemp1,xtemp1); // tempID = to xtemp1 and ytemp1
 
-    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
+    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether rook has made it to its destination
     {
-      flag = true;
+      flag = true; //is a valid move
       break;
     }
 
-    if(tempID != 0)
+    if(tempID != 0) // something is in the way and therefore the rook can no longer continue on this path
     {
 
       flag1 = false;
@@ -670,18 +671,18 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 
     }
 
-    xtemp2 -= 1;
-    ytemp2 += 0;
+    xtemp2 -= 1; // checking one possible pathway
+    ytemp2 += 0; // checking one possible pathway
 
-    tempID = PieceID(ytemp2,xtemp2);
+    tempID = PieceID(ytemp2,xtemp2); // tempID = to xtemp2 and ytemp2
 
-    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
+    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether rook has made it to its destination
     {
-      flag = true;
+      flag = true; //is a valid move
       break;
     }
 
-    if(tempID != 0)
+    if(tempID != 0) // something is in the way and therefore the rook can no longer continue on this path
     {
 
       flag2 = false;
@@ -691,18 +692,18 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 
     
 
-    xtemp3 += 0;
-    ytemp3 += 1;
+    xtemp3 += 0; // checking one possible pathway
+    ytemp3 += 1; // checking one possible pathway
 
-    tempID = PieceID(ytemp3,xtemp3);
+    tempID = PieceID(ytemp3,xtemp3); // tempID = to xtemp3 and ytemp3
 
-    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
+    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether rook has made it to its destination
     {
-      flag = true;
+      flag = true; //is a valid move
       break;
     }
 
-    if(tempID != 0)
+    if(tempID != 0) // something is in the way and therefore the rook can no longer continue on this path
     {
 
       flag3 = false;
@@ -712,18 +713,18 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
 
     
 
-    xtemp4 += 0;
-    ytemp4 -= 1;
+    xtemp4 += 0; // checking one possible pathway
+    ytemp4 -= 1; // checking one possible pathway
 
-    tempID = PieceID(ytemp4,xtemp4);
+    tempID = PieceID(ytemp4,xtemp4); // tempID = to xtemp4 and ytemp4
 
-    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11))))))
+    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether rook has made it to its destination
     {
-      flag = true;
+      flag = true; //is a valid move
       break;
     }
 
-    if(tempID != 0)
+    if(tempID != 0) // something is in the way and therefore the rook can no longer continue on this path
     {
 
       flag4 = false;
@@ -736,7 +737,7 @@ uint8_t makeRookMove(int yin, int xin,int yf, int xf)
   if(flag)
   {
 
-        res = placePiece( yin, xin, yf, xf, currentID);
+        res = placePiece( yin, xin, yf, xf, currentID); //places rook on future spot if flag is true
 
 
   }
@@ -766,9 +767,9 @@ uint8_t makeQueenMove(int yin, int xin,int yf, int xf)
 uint8_t makeKingMove(int yin, int xin,int yf, int xf)
 {
 
-  uint8_t currentID = PieceID(yin,xin);
-  uint8_t futureID = PieceID(yf,xf);
-  uint8_t res = 0;
+  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
+  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
+  uint8_t res = 0; // returns 0 if makeBishopMove doesnt take any conditionals
 
   //diagional moves
 
@@ -1356,14 +1357,17 @@ int main(void)
     makeMove(0,3,1,3);
     printmyArray();
     */
+    
     printmyArray();
-    makeMove(1,3,6,3);
+    makeMove(6,4,4,4);
     printmyArray();
-    makeMove(2,2,5,2);
+    makeMove(7,5,4,2);
     printmyArray();
-    makeMove(6,6,2,2);
+    makeMove(7,3,3,7);
     printmyArray();
-    makeMove(1,1,2,1);
+    makeMove(3,7,1,5);
+    printmyArray();
+    makeMove(1,5,4,5);
     printmyArray();
     
     
