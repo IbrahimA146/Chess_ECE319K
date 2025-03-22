@@ -173,6 +173,8 @@ uint8_t ypos; //Keeps important y positions
 uint8_t playerKing = 20; //Keeps what kings turn it is (10 for white and 20 for black) P.S (for now it is defaulted at 20 for testing)
 bool check = false;
 bool printcheck = true; // is the code currently checking for a chess "check"
+bool discoveredCheck = false;
+
 
 //Change 0 to 1 at y = 6 x = 3 once testing is complete for check
 /**
@@ -297,9 +299,7 @@ void printmyArray()
         printf("\n"); // Newline after each row
     }
 
-    printf("\n"); // double new line after each chess array
-
-    printf("\n");
+    
 }
 
 //Will find the coordiates of any piece and will store this value in the global variables xpos and ypos
@@ -771,10 +771,13 @@ uint8_t makeKingMove(int yin, int xin,int yf, int xf)
   uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
   uint8_t res = 0; // returns 0 if makeBishopMove doesnt take any conditionals
 
-  //diagional moves
 
-if((futureID == 0) || (((currentID < 11) && (futureID > 10)) || (((currentID > 10) && (futureID < 11)))))
+
+if((futureID == 0) || (((currentID < 11) && (futureID > 10)) || (((currentID > 10) && (futureID < 11))))) //is it a valid move? THIS FUNCTION DOESNT WEED OUT IF CURRENTID IS A KING
 {
+
+  // diagional moves
+
   if(((xf - xin) == 1) && ((yf - yin) ==1))
   {
 
@@ -857,147 +860,151 @@ return res;
 
 bool isInCheck()
 {
-  check = true;
-  bool res = false;
-  uint8_t xin = 0;
-  uint8_t yin = 0;
-  uint8_t yf = 0;
-  uint8_t xf = 0;
-  uint8_t resNum = 0;
-  findPiece(playerKing);
+  check = true; // global variable check is true since the function is in checking for a possible "check"
+  bool res = false; //result is flase if a "check" dosen't exsist
+  uint8_t xin = 0; // initial position setup
+  uint8_t yin = 0; // initial position setup
+  uint8_t yf = 0; // initial position setup
+  uint8_t xf = 0; // initial position setup
+  uint8_t resNum = 0; //temporary variable that will store whatever moving piece fxn is called
+  findPiece(playerKing); // will find where opposing king is and store it in global var xpos and ypos
 
-  xin = xpos;
-  yin = ypos;
+  xin = xpos; // sets xin = xpos (locally storing a global var)
+  yin = ypos; // sets yin = ypos (locally storing a global var)
 
 
-  if(playerKing == 10)
+  if(playerKing == 10) //opposing king is white
   {
     for(int i = 0; i < 8; i++)
     {
-      for(int j = 0; j < 8; j++)
+      if(res) //break if check is true
       {
-        yf = i;
-        xf = j;
+        break;
+      }
 
-        resNum = pawnTakes(ypos, xpos, yf, xf);
-        if((chessboardNum[yf][xf] == 11) && (resNum == 1))
+      for(int j = 0; j < 8; j++) // finding all future moves
+      {
+        yf = i; // sets yf to val of i
+        xf = j; // sets xf to val of j
+
+        resNum = pawnTakes(ypos, xpos, yf, xf); // the king is pretending to traverse in a pawnTakes pathway (diagolly one square)
+        if((chessboardNum[yf][xf] == 11) && (resNum == 1)) // if there is a pawn attacking the king like the fxn pawnTakes implements the conditional is true
         {
-          res = true;
+          res = true; // "check" is true and break out of the fxn
           break;
         }
 
-        resNum = makeKnightMove(ypos, xpos,  yf,  xf);
-        if((chessboardNum[yf][xf] == 12) && (resNum == 1))
+        resNum = makeKnightMove(ypos, xpos,  yf,  xf); // the king is pretending to traverse in a makeKnightMove pathway
+        if((chessboardNum[yf][xf] == 12) && (resNum == 1)) // if there is a knight attacking the king like the fxn makeKnightMove implements the conditional is true
         {
-          res = true;
+          res = true; // "check" is true and break out of the fxn
           break;
         }
 
-        resNum = makeBishopMove(ypos, xpos, yf, xf);
-        if((chessboardNum[yf][xf] == 13) && (resNum == 1))
+        resNum = makeBishopMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeBishopMove pathway
+        if((chessboardNum[yf][xf] == 13) && (resNum == 1)) // if there is a bishop attacking the king like the fxn makeBishopMove implements the conditional is true
         {
-          res = true;
+          res = true; // "check" is true and break out of the fxn
           break;
         }
 
-        resNum = makeRookMove(ypos, xpos, yf, xf);
-        if((chessboardNum[yf][xf] == 15) && (resNum == 1))
+        resNum = makeRookMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeRookMove pathway
+        if((chessboardNum[yf][xf] == 15) && (resNum == 1)) // if there is a rook attacking the king like the fxn makeRookMove implements the conditional is true
         {
-          res = true;
+          res = true; // "check" is true and break out of the fxn
           break;
         }
 
-        resNum = makeQueenMove(ypos, xpos, yf, xf);
-        if((chessboardNum[yf][xf] == 19) && (resNum == 1))
+        resNum = makeQueenMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeQueenMove pathway
+        if((chessboardNum[yf][xf] == 19) && (resNum == 1)) // if there is a queen attacking the king like the fxn makeQueenMove implements the conditional is true
         {
-          res = true;
+        {
+          res = true; // "check" is true and break out of the fxn
           break;
         }
 
-        resNum = makeKingMove(ypos, xpos, yf, xf);
-        if((chessboardNum[yf][xf] == 20) && (resNum == 1))
+        resNum = makeKingMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeKingMove pathway
+        if((chessboardNum[yf][xf] == 20) && (resNum == 1)) // if there is a king attacking the king like the fxn makeKingMove implements the conditional is true
         {
-          res = true;
+          discoveredCheck = true; // a global variable is set to true that a discovered check happens which indicates an invalid move
           break;
         }
       }
     }
-
   }
+}
 
   if(playerKing == 20)
   {
     for(int i = 0; i < 8; i++)
     {
-      for(int j = 0; j < 8; j++)
+      if(res) //break if check is true
       {
-        yf = i;
-        xf = j;
+        break;
+      }
 
-        resNum = pawnTakes(ypos, xpos, yf, xf);
-        if((chessboardNum[yf][xf] == 1) && (resNum == 1))
+      for(int j = 0; j < 8; j++) // finding all future moves
+      {
+        yf = i; // sets yf to val of i
+        xf = j; // sets xf to val of j
+
+        resNum = pawnTakes(ypos, xpos, yf, xf); // the king is pretending to traverse in a pawnTakes pathway (diagolly one square)
+        if((chessboardNum[yf][xf] == 1) && (resNum == 1)) // if there is a pawn attacking the king like the fxn pawnTakes implements the conditional is true
         {
-          res = true;
+          res = true; // "check" is true and break out of the fxn
           break;
         }
 
-        resNum = makeKnightMove(ypos, xpos, yf, xf);
-        if((chessboardNum[yf][xf] == 2) && (resNum == 1))
+        resNum = makeKnightMove(ypos, xpos,  yf,  xf); // the king is pretending to traverse in a makeKnightMove pathway
+        if((chessboardNum[yf][xf] == 2) && (resNum == 1)) // if there is a knight attacking the king like the fxn makeKnightMove implements the conditional is true
         {
-          res = true;
+          res = true; // "check" is true and break out of the fxn
           break;
         }
 
-        resNum = makeBishopMove(ypos, xpos, yf, xf);
-        if((chessboardNum[yf][xf] == 3) && (resNum == 1))
+        resNum = makeBishopMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeBishopMove pathway
+        if((chessboardNum[yf][xf] == 3) && (resNum == 1)) // if there is a bishop attacking the king like the fxn makeBishopMove implements the conditional is true
         {
-          res = true;
+          res = true; // "check" is true and break out of the fxn
           break;
         }
 
-        resNum = makeRookMove(ypos, xpos, yf, xf);
-        if((chessboardNum[yf][xf] == 5) && (resNum == 1))
+        resNum = makeRookMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeRookMove pathway
+        if((chessboardNum[yf][xf] == 5) && (resNum == 1)) // if there is a rook attacking the king like the fxn makeRookMove implements the conditional is true
         {
-          res = true;
+          res = true; // "check" is true and break out of the fxn
           break;
         }
 
-        resNum = makeQueenMove(ypos, xpos, yf, xf);
-        if((chessboardNum[yf][xf] == 9) && (resNum >= 1))
+        resNum = makeQueenMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeQueenMove pathway
+        if((chessboardNum[yf][xf] == 9) && (resNum == 1)) // if there is a queen attacking the king like the fxn makeQueenMove implements the conditional is true
         {
-          res = true;
+        {
+          res = true; // "check" is true and break out of the fxn
           break;
         }
 
-        resNum = makeKingMove(ypos, xpos, yf, xf);
-        if((chessboardNum[yf][xf] == 10) && (resNum == 1))
+        resNum = makeKingMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeKingMove pathway
+        if((chessboardNum[yf][xf] == 10) && (resNum == 1)) // if there is a king attacking the king like the fxn makeKingMove implements the conditional is true
         {
-          res = true;
+          discoveredCheck = true; // a global variable is set to true that a discovered check happens which indicates an invalid move
           break;
         }
-
-
-
-      
       }
     }
   }
+}
 
-  if(res && printcheck)
-  {
-    printf("Check");
-    printf("\n");
-  }
-
-  check = false;
+ 
+  check = false; // check fxn is done
 
   return res;
 
 }
 
-//Sets the chessboardNum to the previous move stored by chessboardNumCheck
-//Inputs yin, xin, yf, xf, are all the propesed corrdiantes
-//Output none
+// Sets the chessboardNum to the previous move stored by chessboardNumCheck
+// Inputs yin, xin, yf, xf, are all the propesed corrdiantes
+// Output none
 void undoMove(int yin, int xin, int yf, int xf)
 {
   chessboardNum[yin][xin] = chessboardNumCheck[yin][xin];
@@ -1005,69 +1012,75 @@ void undoMove(int yin, int xin, int yf, int xf)
 
 }
 
+
+// Will check every possible input move and output move and see whether check becomes false in any case
+// Inputs none
+// Output true if checkmate is true and false if checkmate isnt true
+
+
 bool isCheckMate()
 {
 
-  saveChessboardNum();
-  uint8_t res = 255;
-  bool checkmate = true;
-  //check = true;
-  printcheck = false;
-  bool iteratteloop = false;
+  saveChessboardNum(); // Saves chessboard (not needed but used for testing)
+  uint8_t res = 255; // initial value set to 255 (debugging purposes to see if the code ever reaches a conditional and sets it to 0 or 1)
+  bool checkmate = true; // checkmate is true until proven false
+  printcheck = false; // useless line
+  bool iteratteloop = false; //useless line
+  
 
-  uint8_t xin;
-  uint8_t yin;
-  uint8_t yf;
-  uint8_t xf;
+  uint8_t xin; // initial setup for temp var
+  uint8_t yin; // initial setup for temp var
+  uint8_t yf; // initial setup for temp var
+  uint8_t xf; // initial setup for temp var
 
-  uint8_t xin_1;
-  uint8_t yin_1;
-  uint8_t yf_1;
-  uint8_t xf_1;
+  uint8_t xin_1; // initial setup for temp var (debugging purposes)
+  uint8_t yin_1; // initial setup for temp var (debugging purposes)
+  uint8_t yf_1; // initial setup for temp var (debugging purposes)
+  uint8_t xf_1; // initial setup for temp var (debugging purposes)
 
 
 
   for(int i = 0; i < 8; i++)
   {
-    if(!checkmate)
+    if(!checkmate) // breaks if checkmate is false
               {
                 break;
               }
     for(int j = 0; j < 8; j++) 
     {
-      if(!checkmate)
+      if(!checkmate) // breaks if checkmate is false
               {
 
                 break;
               }
       for(int k = 0; k < 8; k++)
       {
-        if(!checkmate)
+        if(!checkmate) // breaks if checkmate is false
               {
                 break;
               }
-        for(int l = 0; l < 8; l++)
+        for(int l = 0; l < 8; l++) // check all 4096 differnt possibilites of moves that could be made for initial moves and final moves (most are illegal :( )
         {
 
-          yin = i;
-          xin = j;
-          yf = k;
-          xf = l;
+          yin = i; // sets temp var to a value
+          xin = j; // sets temp var to a value
+          yf = k; // sets temp var to a value
+          xf = l; // sets temp var to a value
 
-          uint8_t currentID = PieceID(yin,xin);
+          uint8_t currentID = PieceID(yin,xin); // currentID = corrdiates of yin and xin
 
-          if(((currentID >10) && (playerKing == 20)) || ((currentID <11) && (playerKing == 10)))
+          if(((currentID >10) && (playerKing == 20)) || ((currentID <11) && (playerKing == 10))) // checks if attacked king can be saved by moving one of its own pieces (essentally looking 1 move ahead)
           {
 
-            if((currentID == 1) || (currentID == 11))
+            if((currentID == 1) || (currentID == 11)) // is it a pawn
             {
-              saveChessboardNum();
-              res = makePawnMove(yin,xin,yf,xf);
-              if(res == 1)
+              saveChessboardNum(); // saves chessboard in this state
+              res = makePawnMove(yin,xin,yf,xf); // makes a pawn move and checks validity
+              if(res == 1) // conditional checking validty of the move
               {
-                checkmate = isInCheck();
-                restoreChessboardNum();
-                if(!checkmate)
+                checkmate = isInCheck(); // checkmate = chceck + one addional move made
+                restoreChessboardNum(); // restore chessboard to its orginal state
+                if(!checkmate) // breaks if checkmate is false
                   {
 
                     yin_1 = yin;
@@ -1081,15 +1094,15 @@ bool isCheckMate()
     
             }
 
-          if((currentID == 2) || (currentID == 12))
+          if((currentID == 2) || (currentID == 12)) // is it a knight
             {
-              saveChessboardNum();
-              res = makeKnightMove(yin,xin,yf,xf);
-              if(res == 1)
+              saveChessboardNum(); // saves chessboard in this state
+              res = makeKnightMove(yin,xin,yf,xf); // makes a knight move and checks validity
+              if(res == 1) // conditional checking validty of the move
               {
-                checkmate = isInCheck();
-                restoreChessboardNum();
-                if(!checkmate)
+                checkmate = isInCheck(); // checkmate = chceck + one addional move made
+                restoreChessboardNum(); // restore chessboard to its orginal state
+                if(!checkmate) // breaks if checkmate is false
                   {
                     yin_1 = yin;
                     xin_1 = xin;
@@ -1103,13 +1116,13 @@ bool isCheckMate()
 
           if((currentID == 3) || (currentID == 13))
             {
-              saveChessboardNum();
-              res = makeBishopMove(yin,xin,yf,xf);
-              if(res == 1)
+              saveChessboardNum(); // saves chessboard in this state
+              res = makeBishopMove(yin,xin,yf,xf); // makes a bishop move and checks validity
+              if(res == 1) // conditional checking validty of the move
               {
-                checkmate = isInCheck();
-                restoreChessboardNum();
-                if(!checkmate)
+                checkmate = isInCheck(); // checkmate = chceck + one addional move made
+                restoreChessboardNum(); // restore chessboard to its orginal state
+                if(!checkmate) // breaks if checkmate is false
                   {
                     yin_1 = yin;
                     xin_1 = xin;
@@ -1123,13 +1136,13 @@ bool isCheckMate()
 
           if((currentID == 5) || (currentID == 15))
             {
-              saveChessboardNum();
-              res = makeRookMove(yin,xin,yf,xf);
-              if(res == 1)
+              saveChessboardNum(); // saves chessboard in this state
+              res = makeRookMove(yin,xin,yf,xf); // makes a rook move and checks validity
+              if(res == 1) // conditional checking validty of the move
               {
-                checkmate = isInCheck();
-                restoreChessboardNum();
-                if(!checkmate)
+                checkmate = isInCheck(); // checkmate = chceck + one addional move made
+                restoreChessboardNum(); // restore chessboard to its orginal state
+                if(!checkmate) // breaks if checkmate is false
                   {
                     yin_1 = yin;
                     xin_1 = xin;
@@ -1143,13 +1156,13 @@ bool isCheckMate()
 
           if((currentID == 9) || (currentID == 19))
             {
-              saveChessboardNum();
-              res = makeQueenMove(yin,xin,yf,xf);
-              if(res == 1)
+              saveChessboardNum(); // saves chessboard in this state
+              res = makeQueenMove(yin,xin,yf,xf); // makes a queen move and checks validity
+              if(res == 1) // conditional checking validty of the move
               {
-                checkmate = isInCheck();
-                restoreChessboardNum();
-                if(!checkmate)
+                checkmate = isInCheck(); // checkmate = chceck + one addional move made
+                restoreChessboardNum(); // restore chessboard to its orginal state
+                if(!checkmate) // breaks if checkmate is false
                   {
                     yin_1 = yin;
                     xin_1 = xin;
@@ -1163,13 +1176,13 @@ bool isCheckMate()
 
           if((currentID == 10) || (currentID == 20))
             {
-              saveChessboardNum();
-              res = makeKingMove(yin,xin,yf,xf);
-              if(res == 1)
+              saveChessboardNum(); // saves chessboard in this state
+              res = makeKingMove(yin,xin,yf,xf); // makes a king move and checks validity
+              if(res == 1) // conditional checking validty of the move
               {
-                checkmate = isInCheck();
-                restoreChessboardNum();
-                if(!checkmate)
+                checkmate = isInCheck(); // checkmate = chceck + one addional move made
+                restoreChessboardNum(); // restore chessboard to its orginal state
+                if(!checkmate) // breaks if checkmate is false
                   {
                     yin_1 = yin;
                     xin_1 = xin;
@@ -1186,38 +1199,53 @@ bool isCheckMate()
   }
 
 
-
-  if(checkmate)
-  {
-    printf("Checkmate");
-
-    printf("\n");
-  }
-
-  printcheck = true;
+  printcheck = true; // not needed
 
   //check = false;
-  restoreChessboardNum();
+  restoreChessboardNum(); // not needed but used for debugging
   return checkmate;
   
 
 }
 
-  
+// Prints the state of the board whether its in check, checkmate, or an invalid move has been made
+// Input none
+// Output none
 
-  
+void statusOfBoard()
+{
+  bool checkprint = false; // sets checkprint false until proven true
+  for(int i = 0; i < 4; i++) // looping to make sure it works (not needed but more testing needs to happen)
+  {
+    if(isCheckMate()) // runs checkmate and sees result
+    {
 
+      printf("Checkmate");
+      printf("\n");
+      break;
 
-  
+    }
+    if(isInCheck() && !discoveredCheck) // determines wheter a "true check" has occured meaning its a clean check and no otehr invalid moves created this check
+    {
+      checkprint = true;
+      
+    }
 
+  }
 
+  if(!isCheckMate() && checkprint) // if check is true and checkmate is false then check is true
+  {
+    printf("Check");
+    printf("\n");
 
+  }
 
-
-
-
-
-
+  if(discoveredCheck) // if an invalid move is made it will show up here
+  {
+    printf("Invalid Move");
+    printf("\n");
+  }
+}
 
 
 
@@ -1226,80 +1254,84 @@ bool isCheckMate()
 //Output returns res: 1 meaning the move was executed 255 meaning its an invalid move 0 meaning that piece was found but couldnt be moved
 uint8_t makeMove(int yin, int xin,int yf, int xf)
 {
-  uint8_t currentID = PieceID(yin,xin);
-  uint8_t res = 255;
-  bool discoveredCheck = false;
+  uint8_t currentID = PieceID(yin,xin); // sets currentID to the initial position selected
+  uint8_t res = 255; // initally set to 255 (for debugging purposes)
+  
+  discoveredCheck = false; // set the gloabl var to false
 
-do
-{
-  discoveredCheck = false;
-  if((currentID == 1) || (currentID == 11))
+  if((currentID == 1) || (currentID == 11)) // if currentID is a pawn
   {
-    res = makePawnMove(yin,xin,yf,xf);
+    res = makePawnMove(yin,xin,yf,xf); // move the pawn if possible
     
   }
 
-  if((currentID == 2) || (currentID == 12))
+  if((currentID == 2) || (currentID == 12)) // if currentID is a knight
   {
 
-    res = makeKnightMove(yin,xin,yf,xf);
+    res = makeKnightMove(yin,xin,yf,xf); // move the knight if possible
 
   }
 
-  if((currentID == 3) || (currentID == 13))
+  if((currentID == 3) || (currentID == 13)) // if currentID is a bishop
   {
 
-    res = makeBishopMove(yin,xin,yf,xf);
+    res = makeBishopMove(yin,xin,yf,xf); // move the bishop if possible
 
   }
 
-  if((currentID == 5) || (currentID == 15))
+  if((currentID == 5) || (currentID == 15)) // if currentID is a rook
   {
 
-    res = makeRookMove(yin,xin,yf,xf);
+    res = makeRookMove(yin,xin,yf,xf); // move the rook if possible
 
   }
 
-  if((currentID == 9) || (currentID == 19))
+  if((currentID == 9) || (currentID == 19)) // if currentID is a queen
   {
 
-    res = makeQueenMove(yin,xin,yf,xf);
+    res = makeQueenMove(yin,xin,yf,xf); // move the queen if possible
 
   }
 
-  if((currentID == 10) || (currentID == 20))
+  if((currentID == 10) || (currentID == 20)) // if currentID is a king
   {
 
-    res = makeKingMove(yin,xin,yf,xf);
+    res = makeKingMove(yin,xin,yf,xf); // move the king if possible
 
   }
 
-if((isInCheck()) && ((((playerKing == 10)) && (chessboardNum[yf][xf] < 11)) || (((playerKing == 20)) && (chessboardNum[yf][xf] > 10)))) //discovered check
+  if(currentID == 0) // if selected piece doesn't exist
+  {
+    res = 0; // result is automatically 0 since selected piece is nothing
+  }
+
+
+if((isInCheck()) && ((((playerKing == 10)) && (chessboardNum[yf][xf] < 11)) || (((playerKing == 20)) && (chessboardNum[yf][xf] > 10)))) // cehces for discovered check once the move is made
 {
-  undoMove(yin,xin,yf,xf);
+  undoMove(yin,xin,yf,xf); // move has to be undone if the move results in a check which is bad since the king is exposed
   discoveredCheck = true;
 }
 
-if(isCheckMate())
+
+if(!discoveredCheck) // if discovered check is false
 {
-  break;
+  chessboardNumCheck[yin][xin] = 0; // move the chess piece
+  chessboardNumCheck[yf][xf] = currentID; //move the chess piece
 }
 
+  isInCheck(); //checks for check
 
-}
-while((isInCheck()) && (discoveredCheck)); //discovered check
+  isCheckMate(); // checks for mate
 
-    chessboardNumCheck[yin][xin] = 0;
-    chessboardNumCheck[yf][xf] = currentID;
-
-
+  printmyArray(); // prints out the current chessboard
   
+  statusOfBoard(); // prints out teh status of teh board if it is in check , mate or an invalid move has been made
 
-  
+  printf("\n");
 
+  printf("\n");
 
-
-    return res;
+    return res; // returns if a move was made or not
 
   
 }
@@ -1358,17 +1390,16 @@ int main(void)
     printmyArray();
     */
     
-    printmyArray();
+    //printmyArray();
     makeMove(6,4,4,4);
-    printmyArray();
-    makeMove(7,5,4,2);
-    printmyArray();
+    //makeMove(7,5,4,2);
     makeMove(7,3,3,7);
-    printmyArray();
     makeMove(3,7,1,5);
-    printmyArray();
+    makeMove(0,6,2,5);
+    
+    makeMove(0,4,1,5);
+
     makeMove(1,5,4,5);
-    printmyArray();
     
     
 
