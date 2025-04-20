@@ -323,6 +323,7 @@ uint8_t xinFirst;
 uint8_t yfFirst;
 uint8_t xfFirst;
 int TheFirstMaxValue;
+bool bothasran = false;
 
 static uint8_t toggle = 0;
 uint8_t screen0 = 0; // used to cahnge screens 
@@ -539,11 +540,45 @@ y0to7pre = yprevious / 20;
 
 }
 
+void TIMG0_IRQHandler(void){
+  if((TIMG0->CPU_INT.IIDX) == 1){ // this will acknowledge
+    TimerG0counts += 1;
+    if(TimerG0counts == 7256)
+    {
+      TimerG0counts = TimerG0counts;
+    }
+    
+  }
+}
+
+void mySysTick_IntArm(uint32_t period, uint32_t priority){
+  uint32_t value;
+  SysTick->CTRL = 0x00;
+  SysTick ->LOAD = period-1;
+  value = priority << 30;
+  SCB ->SHP[1] = SCB->SHP[1]&(~0xC0000000);
+  SysTick->VAL = 0;
+  SysTick->CTRL = 0x00000007;
+}
+
+void mySysTick_Stop(void){
+ 
+  SysTick->VAL = 5;
+  
+}
+
+
+
 void TIMG12_IRQHandler(void){
   
   if((TIMG12->CPU_INT.IIDX) == 1){ // this will acknowledge
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
+
+    
+
+    
+
     Time++;
     ADC_InTriple(ADC1, &y, &vol, &x);
     flag = 1;
@@ -2680,6 +2715,22 @@ if(res == 0)
 
   isInCheck(); //checks for check
 
+  if(isInCheck())
+  {
+
+    if(chessturn == 1)
+      {
+        whitewon = 0;
+        blackwon = 0;
+      }
+      if(chessturn == 0)
+      {
+        whitewon = 0;
+        blackwon = 0;
+      }
+
+  }
+
   
 
   
@@ -3608,26 +3659,7 @@ int main10(void)
 
 }
 
-void TIMG0_IRQHandler(void){
-  if((TIMG0->CPU_INT.IIDX) == 1){ // this will acknowledge
-    TimerG0counts += 1;
-    if(TimerG0counts == 7256)
-    {
-      TimerG0counts = TimerG0counts;
-    }
-    
-  }
-}
 
-void mySysTick_IntArm(uint32_t period, uint32_t priority){
-  uint32_t value;
-  SysTick->CTRL = 0x00;
-  SysTick ->LOAD = period-1;
-  value = priority << 30;
-  SCB ->SHP[1] = SCB->SHP[1]&(~0xC0000000);
-  SysTick->VAL = 0;
-  SysTick->CTRL = 0x00000007;
-}
 
 
 
@@ -3988,6 +4020,7 @@ void joyStickReadingsBot()
   ADC_InitTriple(ADC1, 4, 5, 6, ADCVREF_VDDA);
   uint32_t temp;
   uint32_t Position;
+  mySysTick_IntArm(0, 0);
   
   
 
@@ -3998,6 +4031,7 @@ void joyStickReadingsBot()
   Time = 0;
   __enable_irq();
   while(1){
+    mySysTick_IntArm(0, 0);
       // write this
 
       if(flag)
@@ -4042,6 +4076,7 @@ TimerG0counts = 0;
 
     xarr++;
     xplot+=16;
+    mySysTick_Stop();
     
 
     }
@@ -4059,6 +4094,7 @@ TimerG0counts = 0;
 
     xarr--;
     xplot-=16;
+    mySysTick_Stop();
     
 
     }
@@ -4076,6 +4112,7 @@ TimerG0counts = 0;
 
     yarr++;
     yplot+=20;
+    mySysTick_Stop();
     
 
     }
@@ -4093,6 +4130,7 @@ TimerG0counts = 0;
 
     yarr--;
     yplot-=20;
+    mySysTick_Stop();
     
 
     }
@@ -4372,7 +4410,7 @@ TimerG0counts = 0;
     doubleclick = 0;
 
   
-  isplacing = true;
+    isplacing = true;
       bot = true;
       check = false;
     if((chessturn == 0) && (chessboardNum[yin1][xin1] < 11) && (chessboardNum[yin1][xin1] != 0))
@@ -4473,16 +4511,18 @@ TimerG0counts = 0;
 
       
     }
+    bothasran = true;
   }
 
   isplacing = false;
       bot = false;
       check = true;
-    if(!invalidMove)
+    if(!invalidMove && bothasran)
     {
       TimerG0counts = 0;
       mySysTick_IntArm(7256, 0);
         TimerG0_IntArm(7256, 0, 0);
+        TimerG12_IntArm(0,0);
         Sound_Init();
       while(TimerG0counts != 4)
       {
@@ -4491,9 +4531,12 @@ TimerG0counts = 0;
         
       }
       mySysTick_IntArm(0, 0);
-        TimerG0_IntArm(0, 1, 0);
+        TimerG0_IntArm(1, 0, 0);
+        TimerG12_IntArm(1333333,0);
       TimerG0counts = 0;
     }
+
+    bothasran = false;
 
     
   }
