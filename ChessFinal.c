@@ -4157,6 +4157,8 @@ TimerG0counts = 0;
     if(actMiniMax)
   {
 
+    bothasran = true;
+
       needtoCheck = true;
       needtoCheckmate = true;
       bool breakoutofloop = false;
