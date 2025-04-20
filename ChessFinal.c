@@ -4946,10 +4946,14 @@ else {
   blackwon = 0;
   whitewon = 0;
 
+  TimerG0_IntArm(7256, 0, 0);
+
   TimerG0counts = 0;
 
-  while(TimerG0counts != 2000)
+  while(TimerG0counts != 110)
   {
+
+
 
   }
 }
