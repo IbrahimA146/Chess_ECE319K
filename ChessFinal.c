@@ -306,6 +306,10 @@ uint8_t botYin;
 uint8_t botXin;
 uint8_t botYf;
 uint8_t botXf;
+uint8_t botYinPre;
+uint8_t botXinPre;
+uint8_t botYfPre;
+uint8_t botXfPre;
 uint8_t botYinFin;
 uint8_t botXinFin;
 uint8_t botYfFin;
@@ -325,6 +329,8 @@ uint8_t xfFirst;
 int TheFirstMaxValue;
 bool bothasran = false;
 
+
+uint32_t ThreeDTimer = 250;
 static uint8_t toggle = 0;
 uint8_t screen0 = 0; // used to cahnge screens 
 uint8_t currentFrame = 0;
@@ -375,6 +381,11 @@ uint8_t blackscore = 0;
 int selectedBoxColor = ST7735_YELLOW;
 int yellowColor = ST7735_YELLOW;
 int cyanColor = ST7735_CYAN;
+uint32_t soundpause = 4;
+
+
+uint32_t arrtime[30] = {5000, 4000, 3000, 4000, 4000, 4000, 3000, 4000, 4500, 4000, 3000, 4000, 4000,  4000, 3000, 4000, 4000, 4000, 3000, 4000, 4000,  8000,  4000,  4000,  4000,  4000,  4000, 4000, 4000, 4000};
+uint32_t note[30] =    {9500, 4497, 5054, 6752, 8503, 4497, 5054, 6752, 8503, 5662, 6356, 8503, 10128, 5662, 6356, 8503, 8503, 6356, 6752, 8503, 10128, 12712, 13468, 12712, 11325, 10128, 8994, 8503, 7573, 6752};
 
 
 
@@ -3660,9 +3671,6 @@ int main10(void)
 }
 
 
-
-
-
 void joyStickReadings()
 {
   uint32_t res;
@@ -3998,8 +4006,21 @@ TimerG0counts = 0;
       TimerG0counts = 0;
       mySysTick_IntArm(7256, 0);
         TimerG0_IntArm(7256, 0, 0);
+        if(chessboardNum[yf1][xf1] == 12 || chessboardNum[yf1][xf1] == 2)
+        {
+          Sound_Start(2, vol);
+          soundpause = 40;
+        }
+        else if (chessboardNum[yf1][xf1] == 13 || chessboardNum[yf1][xf1] == 3 || chessboardNum[yf1][xf1] == 15 || chessboardNum[yf1][xf1] == 5 || chessboardNum[yf1][xf1] == 19 || chessboardNum[yf1][xf1] == 9) {
+          Sound_Start(1, vol);
+          soundpause = 20;
+        }
+        else {
+        Sound_Start(0, vol);
+        soundpause = 4;
+        }
         Sound_Init();
-      while(TimerG0counts != 4)
+      while(TimerG0counts != soundpause)
       {
 
         
@@ -4157,11 +4178,10 @@ TimerG0counts = 0;
     if(actMiniMax)
   {
 
-    bothasran = true;
-
       needtoCheck = true;
       needtoCheckmate = true;
       bool breakoutofloop = false;
+      bothasran = true;
 
 
       if(isInCheck())
@@ -4230,6 +4250,8 @@ TimerG0counts = 0;
         if(isInCheckmate())
         {
 
+          
+
         }
 
         needtoCheck = false;
@@ -4274,6 +4296,8 @@ TimerG0counts = 0;
       yf1 = botYf;
       xf1 = botXf;
 
+      
+
     
       
       
@@ -4282,6 +4306,16 @@ TimerG0counts = 0;
       SpecialRestoreChessboardNum();
       restoreChessboardNum();
       restoreChessboardBot();
+
+      check = true;
+     if(makeMove(yin1, xin1, yf1, xf1) == 0)
+     {
+      yin1 = botYinPre;
+      xin1 = botXinPre;
+      yf1 = botYfPre;
+      xf1 = botXfPre;
+     }
+     check = false;
       
 
       bot = false;
@@ -4525,8 +4559,21 @@ TimerG0counts = 0;
       mySysTick_IntArm(7256, 0);
         TimerG0_IntArm(7256, 0, 0);
         TimerG12_IntArm(0,0);
+        if(chessboardNum[yf1][xf1] == 12 || chessboardNum[yf1][xf1] == 2)
+        {
+          Sound_Start(2, vol);
+          soundpause = 40;
+        }
+        else if (chessboardNum[yf1][xf1] == 13 || chessboardNum[yf1][xf1] == 3 || chessboardNum[yf1][xf1] == 15 || chessboardNum[yf1][xf1] == 5 || chessboardNum[yf1][xf1] == 19 || chessboardNum[yf1][xf1] == 9) {
+          Sound_Start(1, vol);
+          soundpause = 20;
+        }
+        else {
+        Sound_Start(0, vol);
+        soundpause = 4;
+        }
         Sound_Init();
-      while(TimerG0counts != 4)
+      while(TimerG0counts != soundpause)
       {
 
         
@@ -4588,32 +4635,32 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
     
       
       if (vol > 3072){
-        ST7735_DrawSmallCircle(64, 30, ST7735_WHITE);
-        ST7735_DrawSmallCircle(64, 60, ST7735_BLACK);
-        ST7735_DrawSmallCircle(64, 90, ST7735_BLACK);  
-        ST7735_DrawSmallCircle(64, 120, ST7735_BLACK);    
+        ST7735_DrawSmallCircle(3, 30, ST7735_WHITE);
+        ST7735_DrawSmallCircle(3, 60, ST7735_BLACK);
+        ST7735_DrawSmallCircle(3, 90, ST7735_BLACK);  
+        ST7735_DrawSmallCircle(3, 120, ST7735_BLACK);    
       }
        if (vol <= 3072 && vol > 2048 )
       {
 
-        ST7735_DrawSmallCircle(64, 30, ST7735_BLACK);
-        ST7735_DrawSmallCircle(64, 60, ST7735_WHITE);
-        ST7735_DrawSmallCircle(64, 90, ST7735_BLACK);  
-        ST7735_DrawSmallCircle(64, 120, ST7735_BLACK); 
+        ST7735_DrawSmallCircle(3, 30, ST7735_BLACK);
+        ST7735_DrawSmallCircle(3, 60, ST7735_WHITE);
+        ST7735_DrawSmallCircle(3, 90, ST7735_BLACK);  
+        ST7735_DrawSmallCircle(3, 120, ST7735_BLACK); 
 
       }
        if (vol <= 2048 && vol > 1024){
-        ST7735_DrawSmallCircle(64, 30, ST7735_BLACK);
-        ST7735_DrawSmallCircle(64, 60, ST7735_BLACK);
-        ST7735_DrawSmallCircle(64, 90, ST7735_WHITE);  
-        ST7735_DrawSmallCircle(64, 120, ST7735_BLACK); 
+        ST7735_DrawSmallCircle(3, 30, ST7735_BLACK);
+        ST7735_DrawSmallCircle(3, 60, ST7735_BLACK);
+        ST7735_DrawSmallCircle(3, 90, ST7735_WHITE);  
+        ST7735_DrawSmallCircle(3, 120, ST7735_BLACK); 
       }
 
        if (vol <= 1024 ){
-        ST7735_DrawSmallCircle(64, 30, ST7735_BLACK);
-        ST7735_DrawSmallCircle(64, 60, ST7735_BLACK);
-        ST7735_DrawSmallCircle(64, 90, ST7735_BLACK);  
-        ST7735_DrawSmallCircle(64, 120, ST7735_WHITE); 
+        ST7735_DrawSmallCircle(3, 30, ST7735_BLACK);
+        ST7735_DrawSmallCircle(3, 60, ST7735_BLACK);
+        ST7735_DrawSmallCircle(3, 90, ST7735_BLACK);  
+        ST7735_DrawSmallCircle(3, 120, ST7735_WHITE); 
       }
       
     
@@ -4665,7 +4712,7 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
     ST7735_SetCursor(3, 6);
     ST7735_OutString("English 1 Player");
     ST7735_SetCursor(3, 9);
-    ST7735_OutString("Espa\xA4ol 2 jugadores");
+    ST7735_OutString("Espa\xA4ol 2 jugador");
     ST7735_SetCursor(3, 12);
     ST7735_OutString("Espa\xA4ol 1 jugador");
 
@@ -4712,7 +4759,7 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
       switch(currentFrame){
         case 0:
           ST7735_DrawBitmap(32, 105, rot1, 64, 64);
-          if(TimerG0counts > 250)
+          if(TimerG0counts > ThreeDTimer)
           {
             currentFrame = 1;
             TimerG0counts = 0;
@@ -4720,7 +4767,7 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
           break;
         case 1:
           ST7735_DrawBitmap(32, 105, rot3, 64, 64);
-          if(TimerG0counts > 250)
+          if(TimerG0counts > ThreeDTimer)
           {
             currentFrame = 2;
             TimerG0counts = 0;
@@ -4728,7 +4775,7 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
           break;
         case 2:
           ST7735_DrawBitmap(32, 105, rot5, 64, 64);
-          if(TimerG0counts > 250)
+          if(TimerG0counts > ThreeDTimer)
           {
             currentFrame = 3;
             TimerG0counts = 0;
@@ -4736,7 +4783,7 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
           break;
         case 3:
           ST7735_DrawBitmap(32, 105, rot3, 64, 64);
-          if(TimerG0counts > 250)
+          if(TimerG0counts > ThreeDTimer)
           {
             currentFrame = 0;
             TimerG0counts = 0;
@@ -4760,7 +4807,7 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
       switch(currentFrame){
         case 0:
           ST7735_DrawBitmap(32, 105, rot1, 64, 64);
-          if(TimerG0counts > 250)
+          if(TimerG0counts > ThreeDTimer)
           {
             currentFrame = 1;
             TimerG0counts = 0;
@@ -4768,7 +4815,7 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
           break;
         case 1:
           ST7735_DrawBitmap(32, 105, rot3, 64, 64);
-          if(TimerG0counts > 250)
+          if(TimerG0counts > ThreeDTimer)
           {
             currentFrame = 2;
             TimerG0counts = 0;
@@ -4776,7 +4823,7 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
           break;
         case 2:
           ST7735_DrawBitmap(32, 105, rot5, 64, 64);
-          if(TimerG0counts > 250)
+          if(TimerG0counts > ThreeDTimer)
           {
             currentFrame = 3;
             TimerG0counts = 0;
@@ -4784,7 +4831,7 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
           break;
         case 3:
           ST7735_DrawBitmap(32, 105, rot3, 64, 64);
-          if(TimerG0counts > 250)
+          if(TimerG0counts > ThreeDTimer)
           {
             currentFrame = 0;
             TimerG0counts = 0;
@@ -4900,6 +4947,8 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
 
 void score(void)
 {
+
+  ThreeDTimer = 10;
   uint32_t whitehexscore;
     uint32_t blackhexscore;
     uint32_t count = 0;
@@ -5140,3 +5189,9 @@ while(1)
 }
   
 }
+
+
+
+
+
+
