@@ -79,53 +79,25 @@ const char *Phrases[3][4]={
 
 
 
-
-// C program to create a chess board 
-//#include <conio.h> 
-//#include <dos.h> 
-//#include <graphics.h> 
+/* 
 
 
 
+This is the section where we do all of our initializations and declare out handlers....
 
+- - - - - ()()() - - - - - - - - - - - - - - - () ()() - - - - - - - -
 
 
 
 
-
-
-
-
-
-
-
-/**
-
-Hello my name is Ibrahim Aksoy and I'm an absoulte god at coding in c.
-Since he would never say that I though I might as well say it and btw my name is Aarav Lakdawala 
-Ibrahim Aksoy, Aarav Lakdawala, Sharaf Zaman, and blank (IDK his name Ibrahim) have wrote this equally and fairly (THATS SOO CAP)
-Just as a warning I'm an awful speller which is why I love prorgamming so beware of spelling mistakes
-We would like to present you the game of chess remastered in its beta fucntionality
-Our team is working tirelessly to produce the best chess exprience and we would love your feedback
-
-
-IbrahimA146 is the gitbub
-
-
-WITHOUT FURTHER ADO CHESS 
-
-♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖
-♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙
-
-
-
-
-
-♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ ♟︎ 
-♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜
 
 
 */
+
+
+
+
+
 
 const uint8_t whiteOrBlack[8][8] = {
   {1,0,1,0,1,0,1,0},
@@ -141,32 +113,13 @@ const uint8_t whiteOrBlack[8][8] = {
 #include <stdio.h> 
 #define NUM 8
 
-uint8_t allPossMovesWhite [2250][4];
-uint8_t allPossMovesBlack [2250][4];
-uint8_t firstWhiteMoves [500][4];
-uint8_t undoBotMovesBot [10][4];
-uint8_t undoBotMovesBotCount = 0;
-uint8_t botYin;
-uint8_t botXin;
-uint8_t botYf;
-uint8_t botXf;
-uint8_t botYinFin;
-uint8_t botXinFin;
-uint8_t botYfFin;
-uint8_t botXfFin;
+
 bool bot = false;
-uint32_t Searchcount = 0;
 bool actMiniMax = true;
 bool player1Mode;
 bool isplacing = false;
 bool needtoCheck = false;
-bool needtoCheckmate = false;
-bool canBotDeflectCheck = false;
-uint8_t yinFirst;
-uint8_t xinFirst;
-uint8_t yfFirst;
-uint8_t xfFirst;
-int TheFirstMaxValue;
+
 
 static uint8_t toggle = 0;
 uint8_t screen0 = 0; // used to cahnge screens 
@@ -186,6 +139,8 @@ uint8_t xin1;
   uint8_t yin1; 
   uint8_t xf1; 
   uint8_t yf1;  
+
+uint32_t soundpause = 4;
 
 uint8_t chessturn = 1; // 1 = white; 0 = black
 uint8_t doubleclick = 0;
@@ -247,140 +202,100 @@ uint32_t res;
     return res; // write this
 }
 
-void drawHollowBox()
-{
-  uint16_t lightBrown = ST7735_Color565(210, 180, 140);   // Example Tan
-uint16_t darkBrown = ST7735_Color565(101, 67, 33);  
-  //ST7735_DrawPixel(xplot, yplot, ST7735_YELLOW);
 
 
-int i;
-int j;
-
-x0to7pre = xprevious / 16;
-y0to7pre = yprevious / 20;
 
 
- 
- if(doubleclick == 2)
- {
+/*
 
- }
- else {
 
- 
+    DRAW HOLLOW BOX FUNCTION
 
-  if(((whiteOrBlack[y0to7pre][x0to7pre]) == 1) && xprevious != -1) //white
-  {
 
-       for(i = xprevious +2; i < xprevious+14; i++)
-  {
+    Purpose; Draws a hollow box around selected chess square
 
-     ST7735_DrawPixel(i, yprevious, lightBrown);
+    How? Highlights the current square at (xplot, yplot) using a hollow box and re draws the previously
+    selected square using its original color based on what it was previously. Then it stores new pos. 
+    Functionality:
+      - If its not a double click, redraw the old square using its original color
+      - If the old square and current square match, clear the selection
+      - Always draw hollow box around the currently selected square
+      - Store current position
 
+    Variables used?
+      - xplot, yplot
+      - xprev, yprev
+      - WhiteOrBlack[][]
+      - Doubleclick
+      - Selectedboxcolor
+
+    Inputs: None
+
+    Outputs: Draws pixels to the screen
+
+
+
+
+
+*/
+
+
+void drawHollowBox(){
+
+  // Color Definitions
+  uint16_t lightBrown = ST7735_Color565(210, 190, 140);
+  uint16_t darkGreen = ST7735_Color565(34, 85, 34);
+
+  int i, j; // For loop variables
+
+
+  // Get the index of the previously selected square (chessboard drawn in 16x20 blocks)
+  int x_index = xprevious / 16;
+  int y_index = yprevious / 20;
+
+  // Make sure double clock not happening
+  if (doubleclick != 2) {
+
+
+
+    if (xprevious != -1 && whiteOrBlack[y_index][x_index] == 1) {
+      for (i = 0; i < 12; i++) {
+        ST7735_DrawPixel(xprevious + 2 + i, yprevious, lightBrown);
+        ST7735_DrawPixel(xprevious + 2 + i, yprevious + 18, lightBrown);
+      }
+      for (j = 0; j < 17; j++) {
+        ST7735_DrawPixel(xprevious, yprevious + 1 + j, lightBrown);
+        ST7735_DrawPixel(xprevious + 14, yprevious + 1 + j, lightBrown);
+      }
+    } else {
+      for (i = 0; i < 12; i++) {
+        ST7735_DrawPixel(xprevious + 2 + i, yprevious, darkGreen);
+        ST7735_DrawPixel(xprevious + 2 + i, yprevious + 18, darkGreen);
+      }
+      for (j = 0; j < 17; j++) {
+        ST7735_DrawPixel(xprevious, yprevious + 1 + j, darkGreen);
+        ST7735_DrawPixel(xprevious + 14, yprevious + 1 + j, darkGreen);
+      }
+    }
+
+    if (xplot == xprevious && yplot == yprevious) {
+      xprevious = -1;
+      yprevious = -1;
+    }
+
+    for (i = 0; i < 12; i++) {
+      ST7735_DrawPixel(xplot + 2 + i, yplot, selectedBoxColor);
+      ST7735_DrawPixel(xplot + 2 + i, yplot + 18, selectedBoxColor);
+    }
+
+    for (j = 0; j < 17; j++) {
+      ST7735_DrawPixel(xplot, yplot + 1 + j, selectedBoxColor);
+      ST7735_DrawPixel(xplot + 14, yplot + 1 + j, selectedBoxColor);
+    }
+
+    xprevious = xplot;
+    yprevious = yplot;
   }
-
-  for(i = xprevious +2; i < xprevious+14; i++)
-  {
-
-     ST7735_DrawPixel(i, yprevious+18, lightBrown);
-
-  }
-
-  for(j = yprevious +1; j < yprevious+18; j++)
-  {
-
-     ST7735_DrawPixel(xprevious, j, lightBrown);
-
-  }
-
-  for(j = yprevious+1; j < yprevious+18; j++)
-  {
-
-     ST7735_DrawPixel(xprevious +14, j, lightBrown);
-
-  }
-
-  }
-  else
-  {
-
-  for(i = xprevious +2; i < xprevious+14; i++)
-  {
-
-     ST7735_DrawPixel(i, yprevious, darkBrown);
-
-  }
-
-  for(i = xprevious +2; i < xprevious+14; i++)
-  {
-
-     ST7735_DrawPixel(i, yprevious+18, darkBrown);
-
-  }
-
-  for(j = yprevious +1; j < yprevious+18; j++)
-  {
-
-     ST7735_DrawPixel(xprevious, j, darkBrown);
-
-  }
-
-  for(j = yprevious+1; j < yprevious+18; j++)
-  {
-
-     ST7735_DrawPixel(xprevious +14, j, darkBrown);
-
-  }
-  
-  }
-
-   if((xprevious == xplot) && (yprevious == yplot))
-  {
-
-    xprevious = -1;
-    yprevious = -1;
-
-  }
-
-   for(i = xplot +2; i < xplot+14; i++)
-  {
-
-     ST7735_DrawPixel(i, yplot, selectedBoxColor);
-
-  }
-
-  for(i = xplot +2; i < xplot+14; i++)
-  {
-
-     ST7735_DrawPixel(i, yplot+18, selectedBoxColor);
-
-  }
-
-  for(j = yplot +1; j < yplot+18; j++)
-  {
-
-     ST7735_DrawPixel(xplot, j, selectedBoxColor);
-
-  }
-
-  for(j = yplot+1; j < yplot+18; j++)
-  {
-
-     ST7735_DrawPixel(xplot +14, j, selectedBoxColor);
-
-  }
-  
-
- 
-
-  xprevious = xplot;
-  yprevious = yplot;
-
- }
-
-  
-
 }
 
 void TIMG12_IRQHandler(void){
@@ -568,135 +483,78 @@ void TIMG12_IRQHandler(void){
 
 
 
+/*
 
 
-void drawBoard()
-{
 
-uint16_t lightBrown = ST7735_Color565(210, 180, 140);   // Example Tan
-uint16_t darkBrown = ST7735_Color565(101, 67, 33); 
 
+  Draw Board FUNCTION! :)
+
+  Purpose?!? Draws the entire chess board :O
+
+  Initializes the LCD screen and renders an 8x8 chessboard pattern using alternating light/dark
+  rectangles
+
+  Input - > (Variables used?)
+    - Num defines the board size
+  Outputs - > 
+    - Sends graphical data using the ST7735_FillRect()
+    - Produces 8x8 alternating pattern of light brown and dark green tiles
+  Return? None :(
+
+  How does it work...
+
+    - Loops over each row and column to determine the (x,y) screen position for each square
+    - Uses a checkboard pattern
+      a) k tracks row offset to alternate the light/dark starting square each row
+      b) Uses a checkerboard pattern: `k` tracks row offset to alternate the light/dark starting square each row
+      c) If the condition `j % 2 != k` is true, it draws a dark square. Otherwise, it draws a light one
+      d) After finishing each row, it toggles `k` between 0 and 1 to ensure alternating pattern per row
+
+
+
+
+*/
+
+
+void drawBoard() {
+
+
+  // Define tile colors
+
+  uint16_t lightBrown = ST7735_Color565(210, 190, 140);
+  uint16_t darkGreen = ST7735_Color565(34, 85, 34);
 
   ST7735_InitR(INITR_REDTAB);
-  int i,j;
+
+  int i, j;
   int k = 0;
-  
-  for (i = 0; i< NUM; i++)
-  {
 
-    for(j = 0; j < NUM; j++)
-    {
-      int x = 16*i;
-      int y = 20*j;
-       if(j%2 != k)
-        {
-          ST7735_FillRect(x,y,16,20,darkBrown);
-        }
+  for (i = 0; i < NUM; i++) { // each iteration is a row
+    for (j = 0; j < NUM; j++) { // each iteration is a column
+      int x = i * 16; // left corner of square
+      int y = j * 20; // top corner of square
 
-    else {
-  
+      uint16_t squareColor;
 
-        ST7735_FillRect(x,y,16,20,lightBrown);
-      
+      if ((j % 2 == 0 && k == 0) || (j % 2 != 0 && k == 1)) { // alternating logic
+        squareColor = lightBrown; // even row : light square
+      } else {
+        squareColor = darkGreen; // odd row : dark square
       }
-   
-    
-    
-  }
 
-  if(i%2 == 0)
-  {
-    k = 1;
-  }
-  else
-  {
-  k = 0;
-  }
- 
-}
-printf("\n");
-}
-  
-// Driver Code 
-// Initizizing display and showing the checkered board on hardware screen
-
-
-
-/************************************************\
-
-               Mailbox Chess Engine
-                      (0x88)
-
-                        by
-
-                 Code Monkey King // NOT BY ME :)
-
-\************************************************/
-
-// headers
-#include <stdio.h>
-
-// piece encoding
-enum {e, P, N, B, R, Q, K, p, n, b, r, q, k, o};
-
-// ascii pieces
-char ascii_pieces[] = ".PNBRQKpnbrqk";
-
-// unicode pieces
-char *unicode_pieces[] = {".", "♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
-
-// chess board representation
-int board[128] = {
-    r, n, b, q, k, b, n, r,  o, o, o, o, o, o, o, o,
-    p, p, p, p, p, p, p, p,  o, o, o, o, o, o, o, o,
-    e, e, e, e, e, e, e, e,  o, o, o, o, o, o, o, o,
-    e, e, e, e, e, e, e, e,  o, o, o, o, o, o, o, o,
-    e, e, e, e, e, e, e, e,  o, o, o, o, o, o, o, o,
-    e, e, e, e, e, e, e, e,  o, o, o, o, o, o, o, o,
-    P, P, P, P, P, P, P, P,  o, o, o, o, o, o, o, o,
-    R, N, B, Q, K, B, N, R,  o, o, o, o, o, o, o, o
-};
-
-// print board
-void print_board()
-{
-    // print new line
-    printf("\n");
-
-    // loop over board ranks
-    for (int rank = 0; rank < 8; rank++)
-    {
-        for (int file = 0; file < 16; file++)
-        {
-            // init square
-            int square = rank * 16 + file;
-            
-            // print ranks
-            if (file == 0)
-                printf(" %d  ", 8 - rank);
-            
-            // if square is on board
-            if (!(square & 0x88))
-                printf("%c ", ascii_pieces[board[square]]);
-                //printf("%s ", unicode_pieces[board[square]]);
-        }
-        
-        // print new line every time new rank is encountered
-        printf("\n");
+      ST7735_FillRect(x, y, 16, 20, squareColor); // File the rectangle
     }
-    
-    // print files
-    printf("\n    a b c d e f g h\n\n");
+
+    // Flip `k` to alternate starting color for the next row
+    if (k == 0) {
+      k = 1;
+    } else {
+      k = 0;
+    }
+  }
+  
 }
-
-// main driver
-// Will print out the board with actual text pieces
-
-
-
-
-
-
 
 
 //START OF ACTUAL CHESS GAME
@@ -716,21 +574,28 @@ uint8_t futurey;
 
 
 
-//Change 0 to 1 at y = 6 x = 3 once testing is complete for check
-/**
- 0 = no pieces
- 1 = white pawn
- 2 = white horse
- 3 = white bishop
- 5 = white rook
- 9 = white queen
- 10 = white king
- 11 = black pawn
- 12 = black horse
- 13 = black bishop
- 15 = black rook
- 19 = black queen
- 20 = black king
+/*
+
+
+Piece Definitions (Symbolic Constants)
+
+NA 0     // No piece
+WP 11    // White pawn
+WH 12    // White knight
+WB 13    // White bishop
+WR 15    // White rook
+WQ 19    // White queen
+WK 20    // White king
+
+BP 1     // Black pawn
+BH 2     // Black knight
+BB 3     // Black bishop
+BR 5     // Black rook
+BQ 9     // Black queen
+BK 10    // Black king
+
+
+
 
 */
 
@@ -751,7 +616,22 @@ uint8_t futurey;
 #define BK 10
 
 
-// GOD CHESS BOARD ALL UPDATES ARE KEPT IN HERE
+/*
+
+
+CHESS BOARD SATE VARIABLES
+
+
+*/
+
+
+/*
+
+ChessboardNum: Current Live Game State
+
+What for? Contains the position of every piece during actual gameplay. 
+
+*/
 
 uint8_t chessboardNum[8][8] = {
   {WR,WH,WB,WK,WQ,WB,WH,WR},
@@ -765,6 +645,63 @@ uint8_t chessboardNum[8][8] = {
 
 
   
+    
+};
+
+
+/*
+
+ChessboardNumCheck
+
+What for? Used to store the state before a move to check for things like check/checkmate
+
+*/
+uint8_t chessboardNumCheck[8][8] = {
+  {WR,WH,WB,WK,WQ,WB,WH,WR},
+  {WP,WP,WP,WP,WP,WP,WP,WP},
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {BP,BP,BP,BP,BP,BP,BP,BP},
+  {BR,BH,BB,BK,BQ,BB,BH,BR}
+    
+};
+
+
+/*
+
+Used to save the game state before a player makes a move. Check if a move is found to be ILLEGAL :OO
+
+*/
+
+uint8_t chessboardNumSave[8][8] = {
+  {WR,WH,WB,WK,WQ,WB,WH,WR},
+  {WP,WP,WP,WP,WP,WP,WP,WP},
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {BP,BP,BP,BP,BP,BP,BP,BP},
+  {BR,BH,BB,BK,BQ,BB,BH,BR}
+    
+};
+
+/*
+
+Another snapshot.... (more specific checks)
+
+*/
+
+uint8_t chessboardNumSpecialSave[8][8] = {
+  {WR,WH,WB,WK,WQ,WB,WH,WR},
+  {WP,WP,WP,WP,WP,WP,WP,WP},
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {0, 0, 0, 0, 0, 0, 0, 0 },
+  {BP,BP,BP,BP,BP,BP,BP,BP},
+  {BR,BH,BB,BK,BQ,BB,BH,BR}
     
 };
 
@@ -783,58 +720,6 @@ uint8_t chessboardNumbot[8][8] = {
     
 };
 
-
-/**uint8_t chessboardNum[8][8] = {
-  {WR,WH,WB,WQ,WK,WB,WH,WR},
-  {WP,WP,WP,WP,WP,WP,WP,WP},
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {BP,BP,BP,BP,BP,BP,BP,BP},
-  {BR,BH,BB,BQ,BK,BB,BH,BR}
-    
-};
-*/
-
-// KEEPS THE PREVIOUS POSITION OF THE BOARD
-uint8_t chessboardNumCheck[8][8] = {
-  {WR,WH,WB,WK,WQ,WB,WH,WR},
-  {WP,WP,WP,WP,WP,WP,WP,WP},
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {BP,BP,BP,BP,BP,BP,BP,BP},
-  {BR,BH,BB,BK,BQ,BB,BH,BR}
-    
-};
-
-//Array in which saveChessboardNum uses()
-uint8_t chessboardNumSave[8][8] = {
-  {WR,WH,WB,WK,WQ,WB,WH,WR},
-  {WP,WP,WP,WP,WP,WP,WP,WP},
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {BP,BP,BP,BP,BP,BP,BP,BP},
-  {BR,BH,BB,BK,BQ,BB,BH,BR}
-    
-};
-
-uint8_t chessboardNumSpecialSave[8][8] = {
-  {WR,WH,WB,WK,WQ,WB,WH,WR},
-  {WP,WP,WP,WP,WP,WP,WP,WP},
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {0, 0, 0, 0, 0, 0, 0, 0 },
-  {BP,BP,BP,BP,BP,BP,BP,BP},
-  {BR,BH,BB,BK,BQ,BB,BH,BR}
-    
-};
-
 uint8_t chessboardNumSaveBot[8][8] = {
   {WR,WH,WB,WK,WQ,WB,WH,WR},
   {WP,WP,WP,WP,WP,WP,WP,WP},
@@ -846,6 +731,13 @@ uint8_t chessboardNumSaveBot[8][8] = {
   {BR,BH,BB,BK,BQ,BB,BH,BR}
     
 };
+
+
+/*
+
+Original state configurations 
+
+*/
 
 const uint8_t chessboardinit[8][8] = {
   {WR,WH,WB,WK,WQ,WB,WH,WR},
@@ -860,7 +752,15 @@ const uint8_t chessboardinit[8][8] = {
 };
 
 
-//SAVES THE CHESS BOARD TO WHAT WAS INPUTED IN chessboardNum[][] into chessboardSave[][]
+/*
+
+What this guy do? 
+
+- Saves the current board state (chessboardNum[][]) into chessboardNumSave[][]
+
+*/
+
+
 void saveChessboardNum()
 {
 
@@ -871,6 +771,14 @@ void saveChessboardNum()
     }
 
 }
+
+/*
+
+What this guy do?
+
+- Saves the current board state into chessboardNumSpecialSave[][].
+
+*/
 
 void SpecialsaveChessboardNum()
 {
@@ -884,7 +792,13 @@ void SpecialsaveChessboardNum()
 }
 
 
-//RESORES THE CHESS BOARD TO WHAT WAS INPUTED IN chessboardSave[][] into chessboardNum[][]
+/*
+
+What this guy do?
+
+- Restores chessboardNum[][] from chessboardNumSave[][].
+
+*/
 void restoreChessboardNum()
 {
 
@@ -895,6 +809,14 @@ void restoreChessboardNum()
     }
 
 }
+
+/*
+
+What this guy do?
+
+  - Restores chessboardNum[][] from chessboardNumSpecialSave[][].
+
+*/
 
 void SpecialRestoreChessboardNum()
 {
@@ -907,20 +829,15 @@ void SpecialRestoreChessboardNum()
 
 }
 
+/*
 
+What this guy do?
 
-//Will print out the array in CIO (aka the software output for strings w/o using serial console)
-void printmyArray()
-{
-  for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            printf("%3u ", chessboardNum[i][j]); // %3u to format as unsigned int with width 3
-        }
-        printf("\n"); // Newline after each row
-    }
+  - It loops through all 64 squares of the board and copies 
+    the initial board layout from chessboardinit[][] into the three main board tracking arrays:
 
-    
-}
+*/
+
 
 void resetBoards()
 {
@@ -935,9 +852,21 @@ void resetBoards()
 
 }
 
-//Will find the coordiates of any piece and will store this value in the global variables xpos and ypos
-//Input pieceNum
-//Output None
+
+/*
+
+Find Piece Function
+
+Input? Piece Number
+
+Purpose? Searches the current board (`chessboardNum`) for the first match of the given piece number.
+
+ - How? Loops through all squares on 8x8 board
+ - When it finds target piece, it stores (row, column) in global var ypos and xpos
+
+
+*/
+
 
 void findPiece(uint8_t pieceNum)
 {
@@ -956,16 +885,26 @@ void findPiece(uint8_t pieceNum)
 
 
 
+/*
+
+PIECE ID Functionality
+
+Purpose?
+
+ - To retrieve the piece ID (number) located at a specific square (yin, xin) on the current board (chessboardNum).
+
+Input? 
+
+ - Row Index (0-7) (yin)
+ - Column Index (0-7) (xin)
+
+Output?
+
+  - Returns numeric ID of piece of that square 
 
 
 
-
-
-
-
-//Will find the PieceID based on given xin and yin corrdiantes
-//Inputs xin yin
-//Output ID value stored as num
+*/
 
 uint8_t PieceID(int yin, int xin)
 {
@@ -974,546 +913,475 @@ uint8_t PieceID(int yin, int xin)
 
 }
 
-uint8_t PieceIDBot(int yin, int xin)
-{
-  uint8_t num = (uint8_t)chessboardNumbot[yin][xin]; // finds id of the given square and returns it
-  return num;
 
-}
 
-//This fucntion will Place a Piece in its new location
-//Inputs yin, xin, 
-//yf, xf, are all the corrdiantes used to move the piece from its orginal location to its new location. currentID tells us what the piece is
-//Output return 1 for traversing fxn (important for isItCheck())
+/*
+
+PLACE PIECE Functionality
+
+ - Purpose? 
+
+  Moves a piece from one square to another on the board. [Pretty simple, right? RIGHT?!?!?!]
+
+  Inputs: 
+
+    - yin, xin, Starting square 
+    - yf, xf, Destination square
+    - Current ID: ID of piece being moved
+
+  Outpts:
+
+    - Modifies the board array 
+    - Returns 1 to indicate success
+
+*/
 
 uint8_t placePiece(int yin, int xin, int yf, int xf, uint8_t currentID)
 {
-  if(bot && !check && isplacing)
-  {
+    if (!check) // If not simulating a check, do an actual move
+    {
+        chessboardNum[yin][xin] = 0;         // Clear the original square
+        chessboardNum[yf][xf] = currentID;   // Place the piece at the new square
+    }
 
-    chessboardNumbot[yin][xin] = 0; // puts 0 in the current value
-    chessboardNumbot[yf][xf] = currentID;
-    chessboardNum[yin][xin] = 0; // puts 0 in the current value
-    chessboardNum[yf][xf] = currentID;
+    return 1; // Always return 1 to indicate the operation executed
+}
 
-    return 1;
-
-  }
-
-  if(bot )
-  {
+/*
 
 
+PAWN TAKES Function 
 
-    chessboardNumbot[yin][xin] = 0; // puts 0 in the current value
-    chessboardNumbot[yf][xf] = currentID;
-    return 1;
+What does it do ?!?!
 
-  }
-  if(!check) // gets the gloabl value of check and sees whether the function is propsing a check search or an actual palcement
-  {
-    chessboardNum[yin][xin] = 0; // puts 0 in the current value
-    chessboardNum[yf][xf] = currentID; // updates the future corrdiante to the current piece id (moving the piece)
+ - Handles the case where the pawn captures an opponents piece diagonally 
+
+What are the inputs?
+
+ - xin, yin is starting row and column of the pawn
+ - yf, xf which is the target row/column of opponent piece 
+
+What does it return?
+
+ - 1 if valid ; 0 otherwise 
+
+How does it work? Well, it's relatively simple :)
+
+ - Retrieves the current piece at (yin, xin) and the piece at (yf, xf)
+ - Checks if the move involves a white pawn capturing black or
+   black pawn capturing white
+ - Verifies that the move is a diagonal forward capture 
+ - If valid, moves the piece using `placePiece()` and sets `res = 1`; otherwise res = 0
+
+
+*/
+
+uint8_t pawnTakes(int yin, int xin, int yf, int xf) {
+    uint8_t currentID = PieceID(yin, xin);   // Piece trying to move
+    uint8_t targetID  = PieceID(yf, xf);     // Piece being captured
+    uint8_t result = 0;
+
+    // Check if it’s a white pawn capturing black
+    if ((currentID != 0) && (currentID < 11) && (targetID > 10))
+    {
+        if ((yin - yf == 1) && ((xin - xf == 1) || (xf - xin == 1)))
+        {
+            result = placePiece(yin, xin, yf, xf, currentID);
+        }
+    }
+
+    // Check if it’s a black pawn capturing white
+    if ((currentID > 10) && (targetID < 11) && (targetID != 0))
+    {
+        if ((yf - yin == 1) && ((xin - xf == 1) || (xf - xin == 1)))
+        {
+            result = placePiece(yin, xin, yf, xf, currentID);
+        }
+    }
+
+    return result;
+}
+
+
+/*
+
+MAKE PAWN MOVE FUNCITONALITY -->> super duper
+
+ What parameters are we using here?
+
+  - xin, yin are starting position of the pawn
+  - yf, xf are target row and column index
+
+  What do we return?
+
+   - 1 if success -> 0 if fail :(
+
+  Purpose?! To process ALL POSSIBLE PAWN MOVES woahh (Single step forward, double step forward, diagonal captures)
+
+  Outputs?
+
+   - Updates chessboardNum if the move is valid by calling the placepiece function
+
+*/
+
+uint8_t makePawnMove(int yin, int xin, int yf, int xf) {
+    uint8_t piece = PieceID(yin, xin);     // Current piece to move
+    uint8_t target = PieceID(yf, xf);      // Target square piece
+    uint8_t result = 0;
+    uint8_t midCheck;
+
     
+    result = pawnTakes(yin, xin, yf, xf);
 
-  }
-  return 1;  //still ran even in check or not
+
+    if (piece == 1 && (yin - yf == 1) && (xin == xf) && target == 0) // Black pawn
+    {
+        result = placePiece(yin, xin, yf, xf, piece);
+    }
+
+    if (piece == 11 && (yf - yin == 1) && (xin == xf) && target == 0) // White pawn
+    {
+        result = placePiece(yin, xin, yf, xf, piece);
+    }
 
   
-    
+    if (piece == 1 && yin == 6 && (yin - yf == 2) && (xin == xf) && target == 0)
+    {
+        midCheck = PieceID(yf + 1, xf);
+        if (midCheck == 0)
+        {
+            result = placePiece(yin, xin, yf, xf, piece);
+        }
+    }
 
+    if (piece == 11 && yin == 1 && (yf - yin == 2) && (xin == xf) && target == 0)
+    {
+        midCheck = PieceID(yf - 1, xf);
+        if (midCheck == 0)
+        {
+            result = placePiece(yin, xin, yf, xf, piece);
+        }
+    }
+
+    return result;
+}
+
+/*
+
+
+MAKING KNIGHT MOVE - this is a long one...
+
+  Purpose: ...
+
+   Fucntion checks whether a knight move is valid (including capturing opponent or moving to empty square)
+
+  What are our INPUT PARAMETERS..
+
+   - xin, yin : starting row and column of the index
+   - yf, xf : target row and column of the index 
+
+  Outputs??
+
+    - If move is valid, it moves by calling place piece
+    - If move is not valid, nothing. is. changed. 
+
+  But how does all this WORKKKK
+
+   - First checks that the target square is either:
+     - Empty, OR
+     - Contains an enemy piece 
+   - Then checks for each of the 8 possible knight L-shaped move patterns
+   - If any of the move patterns match, calls placePiece to perform the move and sets res = 1; otherwise res = 0
+
+
+*/
+
+uint8_t makeKnightMove(int yin, int xin,int yf, int xf) {
+    uint8_t currentPiece = PieceID(yin, xin);   // Piece at the starting position
+    uint8_t targetPiece = PieceID(yf, xf);      // Piece at the target position
+    uint8_t result = 0;
+
+    // Check if destination is empty OR it’s a valid capture (opposite color)
+    uint8_t isWhite = (currentPiece < 11 && currentPiece != 0);
+    uint8_t isBlack = (currentPiece > 10);
+    uint8_t targetIsEnemy = ((isWhite && targetPiece > 10) || (isBlack && (targetPiece < 11 && targetPiece != 0)));
+
+    if (targetPiece == 0 || targetIsEnemy)
+    {
+        int rowDiff = yf - yin;
+        int colDiff = xf - xin;
+
+        // Check all 8 possible knight movement patterns
+        if ((rowDiff == 2  && (colDiff == 1 || colDiff == -1)) ||
+            (rowDiff == -2 && (colDiff == 1 || colDiff == -1)) ||
+            (rowDiff == 1  && (colDiff == 2 || colDiff == -2)) ||
+            (rowDiff == -1 && (colDiff == 2 || colDiff == -2)))
+        {
+            result = placePiece(yin, xin, yf, xf, currentPiece);
+        }
+    }
+
+    return result;
+}
+
+/*
+
+
+Now for the EASIEST one so far... (jk!) pls help..
+
+ - What is the PURPOSE ?!?! 
+
+  a) Handles ALL ALL ALL bishop moves (diagonal and captures)
+
+- What are out input parameters...
+
+  - xin, yin : starting row and column 
+  - yf, xf : destination row and column 
+
+- What do we output ....
+
+ - If move is legal - > place piece using placepiece function (look at that modularity!! :O)
+ - res based off of legality (1 is yay ; 0 is boo)
+
+
+- How are we planning on making this work
+
+ 1. The function creates four separate temporary coordinate pairs (xtemp/ytemp) to simulate the bishop moving in
+    each of its four diagonal directions
+ 2.  For each direction:
+     - It iteratively steps one square at a time until either:
+       - It reaches the target square and confirms the path is valid
+       - Or, it hits a blocking piece, which disables further checking in that direction
+ 3. If any direction allows a valid path to the target square, the master `flag` is set to true
+ 4. If `flag` is true at the end of the loop, `placePiece()` is called to execute the move and `res` is set to 1.
+ 5. If no valid path was found, the function returns 0.
+
+
+*/
+
+uint8_t makeBishopMove(int yin, int xin,int yf, int xf) {
+
+
+    uint8_t currentID = PieceID(yin, xin);
+    uint8_t futureID = PieceID(yf, xf);
+    uint8_t res = 0;
+    bool validMove = false;
+
+    // Define bishop movement directions: 
+    int dx[4] = {1, -1, 1, -1};
+    int dy[4] = {1, 1, -1, -1};
+
+    for (int dir = 0; dir < 4; dir++)
+    {
+        int x = xin;
+        int y = yin;
+        bool blocked = false;
+
+        for (int step = 1; step < 8; step++)
+        {
+            x += dx[dir];
+            y += dy[dir];
+
+            // Stop if we go off board
+            if (x < 0 || x >= 8 || y < 0 || y >= 8)
+                break;
+
+            uint8_t squareID = PieceID(y, x);
+
+            if (x == xf && y == yf)
+            {
+                if (squareID == 0 || (currentID < 11 && squareID > 10) || (currentID > 10 && squareID < 11 && squareID != 0))
+                {
+                    validMove = true;
+                }
+                break;
+            }
+
+            if (squareID != 0)
+            {
+                blocked = true;
+                break;
+            }
+        }
+
+        if (validMove) break; // No need to keep scanning other directions
+    }
+
+    if (validMove)
+    {
+        res = placePiece(yin, xin, yf, xf, currentID);
+    }
+
+    return res;
+}
+
+/*
+
+MAKING THE ROOK MOVE.....
+
+  - What is it for
+
+    a) Handles all legal work for the rook
+
+  - What are input parameters:
+
+    - xin, yin ; xf, yf
   
+  - What are we outputting? 
 
-    
+   - 1 if legal and we also execute it 
+   - 0 if not legal
 
+  - How are we planning on making it work
+
+    - The function checks all four  directions (right, left, up, down) from the rooks position
+    - For each direction, it walks one square at a time:
+      - If it reaches the destination and it's either empty or has an opponent's piece, the move is valid
+      - If any piece blocks the path before reaching the destination, that direction is canceled
+    - A set of flags keeps track of whether the path in each direction is still clear
+    - If any of the four directions reach the destination legally, the move is executed
+
+*/
+
+
+uint8_t makeRookMove(int yin, int xin,int yf, int xf) {
+    uint8_t currentID = PieceID(yin, xin);
+    uint8_t futureID  = PieceID(yf, xf);
+    uint8_t res = 0;
+    bool validMove = false;
+
+    // Rook can move in 4 straight directions: 
+    int dx[4] = {1, -1, 0, 0}; // change in x for each direction
+    int dy[4] = {0, 0, 1, -1}; // change in y for each direction
+
+    // Check each direction
+    for (int dir = 0; dir < 4; dir++)
+    {
+        int x = xin;
+        int y = yin;
+
+        // Step one square at a time in the current direction
+        for (int step = 1; step < 8; step++)
+        {
+            x += dx[dir];
+            y += dy[dir];
+
+            // If we're off the board, stop
+            if (x < 0 || x >= 8 || y < 0 || y >= 8)
+                break;
+
+            uint8_t squareID = PieceID(y, x);
+
+            // If we reached the destination square
+            if (x == xf && y == yf)
+            {
+                // Destination must be empty or contain enemy piece
+                if (squareID == 0 ||
+                    (currentID < 11 && squareID > 10) ||
+                    (currentID > 10 && squareID < 11 && squareID != 0))
+                {
+                    validMove = true;
+                }
+                break;
+            }
+
+            // If path is blocked, this direction is done
+            if (squareID != 0)
+                break;
+        }
+
+        // No need to check other directions if valid move already found
+        if (validMove) break;
+    }
+
+    // If a valid path to the destination was found, make the move
+    if (validMove)
+    {
+        res = placePiece(yin, xin, yf, xf, currentID);
+    }
+
+    return res;
 }
 
-//This fucntion explicaly highlights the niche case of a pawn taking material 
-//This function is seperate from makePawnMove() because isItCheck() is only concerned about the king being attackd and a pawn can't attack when directly facing a piece
-//Inputs yin, xin, yf, xf, are all the propesed corrdiantes
-//Output returns res: 1 meaning the move was executed 0 meaning its an invalid move
+/*
 
-uint8_t pawnTakes(int yin, int xin, int yf, int xf)
-{
+Making queen move FUNCTION
 
-  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
-  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
-  uint8_t res = 0; // returns 0 if pawnTakes doesnt take any conditionals
+ - Purpose?!?!
 
-  if(((currentID != 0) && ((currentID != 0) && (currentID < 11)) && (futureID > 10)) || (((currentID > 10) && (((futureID < 11)) && (futureID !=0))))) // is it a valid move? THIS FUNCTION DOESNT WEED OUT IF CURRENTID IS A PAWN
-  {
+  - Handles all queen moving functionality/legality
 
-     if((((yin - yf)==1) && (((xin - xf) == 1) || ((xf - xin) == 1))) && currentID < 11) // checks if the direction is a pawn taking 
-    {
+Input parameters: xin, yin, xf, yf
 
-    
-      res = placePiece( yin, xin, yf, xf, currentID);
+Return? 1 if success ; 0 if fail -> make the move?
 
-    }
+How does it work??!?!
 
-    if((((yf - yin)==1) && (((xin - xf) == 1) || ((xf - xin) == 1))) && currentID > 10) // checks if the direction is a pawn taking 
-      {
+  Call makebishop move
+  Call makerook move
+  If either function is a 1 - > it is LEGAL !!
 
-        res = placePiece( yin, xin, yf, xf, currentID); 
 
-      }
+*/
 
-  }
-
- 
-
-  return res;
-}
-
-//inputs corrdiates of chosen piece and its desitnation. This function accounts all pawn moves execpt en pesant
-//Inputs yin, xin, yf, xf, are all the propesed corrdiantes
-//Output returns res: 1 meaning the move was executed 0 meaning its an invalid move
-
-uint8_t makePawnMove(int yin, int xin, int yf, int xf)
-{
-
-  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
-  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
-  uint8_t res = 0; // returns 0 if makePawnMove doesnt take any conditionals
-  uint8_t temp;
-
-  res = pawnTakes(yin, xin, yf, xf); // calls pawnTakes() and returns result since it is a legal move
-
-  if((currentID == 1) && ((yin - yf)==1) && (futureID == 0) && ((xin - xf)==0)) // Single foward move and checks valildity if currentID is a pawn
-  {
-
-    res = placePiece( yin, xin, yf, xf, currentID);
-
-  }
-
-
-  if((currentID == 11) && ((yf - yin)==1) && (futureID == 0) && ((xin - xf)==0)) // Single foward move and checks valildity if currentID is a pawn
-  {
-
-    res = placePiece( yin, xin, yf, xf, currentID);
-
-  }
-
-  if((currentID == 11) && ((yf - yin)==2) && (yin == 1) && (futureID == 0) && ((xin - xf)==0)) // Double foward move at begining and checks valildity if currentID is a pawn
-  {
-    temp = yf -1;
-    temp = PieceID(temp, xf);
-    if(temp == 0)
-    {
-
-      res = placePiece( yin, xin, yf, xf, currentID);
-
-    }
-    
-
-
-    
-
-  }
-
-  if((currentID == 1) && ((yin - yf)==2) && (yin == 6) && (futureID == 0)&& ((xin - xf)==0)) // Double foward move at begining and checks valildity if currentID is a pawn
-  {
-
-    temp = yf +1;
-    temp = PieceID(temp, xf);
-    if(temp == 0)
-    {
-
-      res = placePiece( yin, xin, yf, xf, currentID);
-
-    }
-
-  }
-
-  return res;
-
-  
-  
-}
-
-//This function accounts for all knight moves
-//Inputs yin, xin, yf, xf, are all the propesed corrdiantes
-//Output returns res: 1 meaning the move was executed 0 meaning its an invalid move
-
-uint8_t makeKnightMove(int yin, int xin,int yf, int xf)
-{
-  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
-  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
-  uint8_t res = 0; // returns 0 if makeKnightMove doesnt take any conditionals
-
-  if((futureID == 0) || (((currentID != 0) && ((currentID < 11)) && (futureID > 10)) || (((currentID > 10) && ((futureID != 0) && (futureID < 11)))))) // is it a valid move? THIS FUNCTION DOESNT WEED OUT IF CURRENTID IS A KNIGHT
-  {
-    
-      if((yf-yin) == 2 && (((xf - xin) == 1) || ((xin - xf) == 1))) // 2 knight moves
-      {
-        res = placePiece( yin, xin, yf, xf, currentID);
-
-      }
-
-      if((yf-yin) == -2 && (((xf - xin) == 1) || ((xin - xf) == 1))) // 2 knight moves
-      {
-        res = placePiece( yin, xin, yf, xf, currentID);
-
-      }
-
-      if((yf-yin) == 1 && (((xf - xin) == 2) || ((xin - xf) == 2))) // 2 knight moves
-      {
-        res = placePiece( yin, xin, yf, xf, currentID);
-
-      }
-
-      if((yf-yin) == -1 && (((xf - xin) == 2) || ((xin - xf) == 2))) // 2 knight moves
-      {
-        res = placePiece( yin, xin, yf, xf, currentID);
-
-      }
-
-    
-
-  }
-
-  return res;
-  
-
-
-
-
-}
-
-//This function accounts for all bishop moves
-//Inputs yin, xin, yf, xf, are all the propesed corrdiantes
-//Output returns res: 1 meaning the move was executed 0 meaning its an invalid move
-
-uint8_t makeBishopMove(int yin, int xin,int yf, int xf)
-{
-
-  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
-  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
-  uint8_t res = 0; // returns 0 if makeBishopMove doesnt take any conditionals
-  uint8_t xtemp1 = xin; // tempVar for initial x val
-  uint8_t ytemp1 = yin; //tempVar for initial y val
-  uint8_t xtemp2 = xin; // tempVar for initial x val
-  uint8_t ytemp2 = yin; //tempVar for initial y val
-  uint8_t xtemp3 = xin; // tempVar for initial x val
-  uint8_t ytemp3 = yin; //tempVar for initial y val
-  uint8_t xtemp4 = xin; // tempVar for initial x val
-  uint8_t ytemp4 = yin; //tempVar for initial y val
-  uint8_t tempID = currentID; //tempId is initalized to currentID
-  bool flag = false; //overall flag if the function hits a conditional
-  bool flag1 = true; // flag for when pathway is not empty
-  bool flag2 = true; // flag for when pathway is not empty
-  bool flag3 = true; // flag for when pathway is not empty
-  bool flag4 = true; // flag for when pathway is not empty
-
-
-
-  for(int i = 0; i < 8; i++)
-  {
-    xtemp1 += 1; //checking one possible pathway
-    ytemp1 += 1; //checking one possible pathway
-
-    tempID = PieceID(ytemp1,xtemp1); // tempID = to xtemp1 and ytemp1
-
-    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether bisop has made it to its destination
-    {
-      flag = true; //is a valid move
-      break;
-    }
-
-    if(tempID != 0) // something is in the way and therefore the bishop can no longer continue on this path
-    {
-
-      flag1 = false;
-      
-
-    }
-
-    xtemp2 -= 1; // checking one possible pathway
-    ytemp2 += 1; // checking one possible pathway
-
-    tempID = PieceID(ytemp2,xtemp2); // tempID = to xtemp2 and ytemp2
-
-    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether bisop has made it to its destination
-    {
-      flag = true;
-      break;
-    }
-
-    if(tempID != 0)
-    {
-
-      flag2 = false;
-      
-
-    }
-
-    
-
-    xtemp3 += 1; // checking one possible pathway
-    ytemp3 -= 1; // checking one possible pathway
-
-    tempID = PieceID(ytemp3,xtemp3); // tempID = to xtemp3 and ytemp3
-
-    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether bisop has made it to its destination
-    {
-      flag = true; //is a valid move
-      break;
-    }
-
-    if(tempID != 0) // something is in the way and therefore the bishop can no longer continue on this path
-    {
-
-      flag3 = false;
-      
-
-    }
-
-    
-
-    xtemp4 -= 1; // checking one possible pathway
-    ytemp4 -= 1; // checking one possible pathway
-
-    tempID = PieceID(ytemp4,xtemp4); // tempID = to xtemp4 and ytemp4
-
-    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether bisop has made it to its destination
-    {
-      flag = true; //is a valid move
-      break;
-    }
-
-    if(tempID != 0) // something is in the way and therefore the bishop can no longer continue on this path
-    {
-
-      flag4 = false;
-      
-
-    }
-
-  }
-
-  if(flag)
-  {
-
-        res = placePiece( yin, xin, yf, xf, currentID); // places bishop if flag is true
-
-
-  }
-
-  return res;
-}
-
-//This function accounts for all rook moves
-//Inputs yin, xin, yf, xf, are all the propesed corrdiantes
-//Output returns res: 1 meaning the move was executed 0 meaning its an invalid move
-
-
-uint8_t makeRookMove(int yin, int xin,int yf, int xf)
-{
-
-  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
-  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
-  uint8_t res = 0; // returns 0 if makeBishopMove doesnt take any conditionals
-  uint8_t xtemp1 = xin; // tempVar for initial x val
-  uint8_t ytemp1 = yin; //tempVar for initial y val
-  uint8_t xtemp2 = xin; // tempVar for initial x val
-  uint8_t ytemp2 = yin; //tempVar for initial y val
-  uint8_t xtemp3 = xin; // tempVar for initial x val
-  uint8_t ytemp3 = yin; //tempVar for initial y val
-  uint8_t xtemp4 = xin; // tempVar for initial x val
-  uint8_t ytemp4 = yin; //tempVar for initial y val
-  uint8_t tempID = currentID; //tempId is initalized to currentID
-  bool flag = false; //overall flag if the function hits a conditional
-  bool flag1 = true; // flag for when pathway is not empty
-  bool flag2 = true; // flag for when pathway is not empty
-  bool flag3 = true; // flag for when pathway is not empty
-  bool flag4 = true; // flag for when pathway is not empty
-
-
-
-  for(int i = 0; i < 8; i++)
-  {
-    xtemp1 += 1; // checking one possible pathway
-    ytemp1 += 0; // checking one possible pathway
-
-    tempID = PieceID(ytemp1,xtemp1); // tempID = to xtemp1 and ytemp1
-
-    if(flag1 && ((xtemp1 == xf) && (ytemp1 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether rook has made it to its destination
-    {
-      flag = true; //is a valid move
-      break;
-    }
-
-    if(tempID != 0) // something is in the way and therefore the rook can no longer continue on this path
-    {
-
-      flag1 = false;
-      
-
-    }
-
-    xtemp2 -= 1; // checking one possible pathway
-    ytemp2 += 0; // checking one possible pathway
-
-    tempID = PieceID(ytemp2,xtemp2); // tempID = to xtemp2 and ytemp2
-
-    if(flag2 && ((xtemp2 == xf) && (ytemp2 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether rook has made it to its destination
-    {
-      flag = true; //is a valid move
-      break;
-    }
-
-    if(tempID != 0) // something is in the way and therefore the rook can no longer continue on this path
-    {
-
-      flag2 = false;
-      
-
-    }
-
-    
-
-    xtemp3 += 0; // checking one possible pathway
-    ytemp3 += 1; // checking one possible pathway
-
-    tempID = PieceID(ytemp3,xtemp3); // tempID = to xtemp3 and ytemp3
-
-    if(flag3 && ((xtemp3 == xf) && (ytemp3 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether rook has made it to its destination
-    {
-      flag = true; //is a valid move
-      break;
-    }
-
-    if(tempID != 0) // something is in the way and therefore the rook can no longer continue on this path
-    {
-
-      flag3 = false;
-      
-
-    }
-
-    
-
-    xtemp4 += 0; // checking one possible pathway
-    ytemp4 -= 1; // checking one possible pathway
-
-    tempID = PieceID(ytemp4,xtemp4); // tempID = to xtemp4 and ytemp4
-
-    if(flag4 && ((xtemp4 == xf) && (ytemp4 == yf) && (futureID == 0 || (((currentID < 11) && (tempID > 10)) || ((currentID > 10) && (tempID < 11)))))) // conditional checking whether rook has made it to its destination
-    {
-      flag = true; //is a valid move
-      break;
-    }
-
-    if(tempID != 0) // something is in the way and therefore the rook can no longer continue on this path
-    {
-
-      flag4 = false;
-      
-
-    }
-
-  }
-
-  if(flag)
-  {
-
-        res = placePiece( yin, xin, yf, xf, currentID); //places rook on future spot if flag is true
-
-
-  }
-
-  return res;
-}
-
-//This function accounts for all queen moves
-//Inputs yin, xin, yf, xf, are all the propesed corrdiantes
-//Output returns res: 1 meaning the move was executed 0 meaning its an invalid move
-
-uint8_t makeQueenMove(int yin, int xin,int yf, int xf)
-{
+uint8_t makeQueenMove(int yin, int xin,int yf, int xf) {
   uint8_t res = 0;
 
-  res += makeBishopMove(yin, xin, yf, xf); // A queen is really a bishop and a rook combined so just call both fxns :)
+  res += makeBishopMove(yin, xin, yf, xf); 
   res += makeRookMove(yin, xin, yf, xf);
 
   return res;
   
 }
 
-//This function accounts for all king moves execpt casting which will be implemented soon
-//Inputs yin, xin, yf, xf, are all the propesed corrdiantes
-//Output returns res: 1 meaning the move was executed 0 meaning its an invalid move
+/*
 
-uint8_t makeKingMove(int yin, int xin,int yf, int xf)
-{
+MAKING KING MOVE FUNCTION....
 
-  uint8_t currentID = PieceID(yin,xin); // finds current ID value of the position
-  uint8_t futureID = PieceID(yf,xf); // finds future ID value of the position
-  uint8_t res = 0; // returns 0 if makeBishopMove doesnt take any conditionals
+ - What's the purpose -> handle all moves for the king
+
+ Input parameters ; yin, xin, xf, yf 
+ Output ; 1 if success -> 0 if fail ... if success, also make the move
 
 
+ - How does the whole thing work??
 
-if((futureID == 0) || (((currentID < 11) && (futureID > 10)) || (((currentID > 10) && (futureID < 11))))) //is it a valid move? THIS FUNCTION DOESNT WEED OUT IF CURRENTID IS A KING
-{
+  1. Retrieves the current piece at the starting position and the piece at the target square
+  2. Verifies that the destination is either empty or occupied by an enemy piece.
+  3. Checks all 8 possible directions a king can move one square:
+ 4. If the movement matches any of those one-square directions, the function calls `placePiece()` and returns `1`.
+ 5. Otherwise, it returns `0`.
 
-  // diagional moves
+*/
 
-  if(((xf - xin) == 1) && ((yf - yin) ==1))
-  {
+uint8_t makeKingMove(int yin, int xin,int yf, int xf) {
 
-      res = placePiece( yin, xin, yf, xf, currentID);
-  }
+    uint8_t currentID = PieceID(yin, xin);     // Current piece at origin
+    uint8_t futureID  = PieceID(yf, xf);       // Target square contents
+    uint8_t res = 0;
 
-  if(((xf - xin) == 1) && ((yin - yf) ==1))
-  {
-      
-      res = placePiece( yin, xin, yf, xf, currentID);    
-  }
+    // Valid if target is empty OR contains enemy piece
+    bool whitePiece = (currentID < 11 && currentID != 0);
+    bool blackPiece = (currentID > 10);
+    bool isEnemyTarget = (whitePiece && futureID > 10) || (blackPiece && futureID < 11 && futureID != 0);
 
-  if(((xin - xf) == 1) && ((yf - yin) ==1))
-  {
-      
-      res = placePiece( yin, xin, yf, xf, currentID);
-  }
+    if (futureID == 0 || isEnemyTarget)
+    {
+        int dx = xf - xin;
+        int dy = yf - yin;
 
-  if(((xin - xf) == 1) && ((yin - yf) ==1))
-  {
-      
-      res = placePiece( yin, xin, yf, xf, currentID);
-  }
+        // King can move one square in any direction: horizontal, vertical, diagonal
+        if ((dx >= -1 && dx <= 1) && (dy >= -1 && dy <= 1))
+        {
+            // Must exclude 0,0 which means "no movement"
+            if (dx != 0 || dy != 0)
+            {
+                res = placePiece(yin, xin, yf, xf, currentID);
+            }
+        }
+    }
 
-  // straight moves
-
-  if(((xf - xin) == 1) && ((yf - yin) ==0))
-  {
-      
-      res = placePiece( yin, xin, yf, xf, currentID);
-  }
-
-  if(((xf - xin) == 0) && ((yin - yf) ==1))
-  {
-      
-      res = placePiece( yin, xin, yf, xf, currentID);    
-  }
-
-  if(((xin - xf) == 0) && ((yf - yin) ==1))
-  {
-      
-      res = placePiece( yin, xin, yf, xf, currentID);
-  }
-
-  if(((xin - xf) == 1) && ((yin - yf) ==0))
-  {
-      
-      res = placePiece( yin, xin, yf, xf, currentID);
-  }
-
-}
-
-  
-return res;
-  
-
+    return res;
 }
 
 /**
@@ -1538,582 +1406,226 @@ return res;
  *   5. Resets the check flag before returning the result.
  */
 
-bool isInCheck()
-{
-  check = true; // global variable check is true since the function is in checking for a possible "check"
-  bool res = false; //result is flase if a "check" dosen't exsist
-  uint8_t xin = 0; // initial position setup
-  uint8_t yin = 0; // initial position setup
-  uint8_t yf = 0; // initial position setup
-  uint8_t xf = 0; // initial position setup
-  uint8_t resNum = 0; //temporary variable that will store whatever moving piece fxn is called
-  findPiece(playerKing); // will find where opposing king is and store it in global var xpos and ypos
+bool isInCheck(){
+    check = true;
+    bool res = false;
+    uint8_t xin = 0, yin = 0;
+    uint8_t yf = 0, xf = 0;
+    uint8_t resNum = 0;
 
-  xin = xpos; // sets xin = xpos (locally storing a global var)
-  yin = ypos; // sets yin = ypos (locally storing a global var)
-  if(bot && !needtoCheck)
-  {
-  return 0;
-  }
+    if (bot && !needtoCheck) return false;
 
-  if(needtoCheck)
-  {
-    findPiece(20);
-    playerKing = 20;
-    xin = xpos; // sets xin = xpos (locally storing a global var)
-    yin = ypos; // sets yin = ypos (locally storing a global var)
-
-  }
-
-  
-
-
-  if(playerKing == 10) //opposing king is white
-  {
-    for(int i = 0; i < 8; i++)
+    if (needtoCheck)
     {
-      if(res) //break if check is true
-      {
-        break;
-      }
-
-      for(int j = 0; j < 8; j++) // finding all future moves
-      {
-        yf = i; // sets yf to val of i
-        xf = j; // sets xf to val of j
-
-        resNum = pawnTakes(ypos, xpos, yf, xf); // the king is pretending to traverse in a pawnTakes pathway (diagolly one square)
-        if((chessboardNum[yf][xf] == 11) && (resNum == 1)) // if there is a pawn attacking the king like the fxn pawnTakes implements the conditional is true
-        {
-          res = true; // "check" is true and break out of the fxn
-          return res;
-          break;
-        }
-
-        resNum = makeKnightMove(ypos, xpos,  yf,  xf); // the king is pretending to traverse in a makeKnightMove pathway
-        if((chessboardNum[yf][xf] == 12) && (resNum == 1)) // if there is a knight attacking the king like the fxn makeKnightMove implements the conditional is true
-        {
-          res = true; // "check" is true and break out of the fxn
-          return res;
-          break;
-        }
-
-        resNum = makeBishopMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeBishopMove pathway
-        if((chessboardNum[yf][xf] == 13) && (resNum == 1)) // if there is a bishop attacking the king like the fxn makeBishopMove implements the conditional is true
-        {
-          res = true; // "check" is true and break out of the fxn
-          return res;
-          break;
-        }
-
-        resNum = makeRookMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeRookMove pathway
-        if((chessboardNum[yf][xf] == 15) && (resNum == 1)) // if there is a rook attacking the king like the fxn makeRookMove implements the conditional is true
-        {
-          res = true; // "check" is true and break out of the fxn
-          return res;
-          break;
-        }
-
-        resNum = makeQueenMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeQueenMove pathway
-        if((chessboardNum[yf][xf] == 19) && (resNum == 1)) // if there is a queen attacking the king like the fxn makeQueenMove implements the conditional is true
-        {
-        {
-          res = true; // "check" is true and break out of the fxn
-          return res;
-          break;
-        }
-
-        resNum = makeKingMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeKingMove pathway
-        if((chessboardNum[yf][xf] == 20) && (resNum == 1)) // if there is a king attacking the king like the fxn makeKingMove implements the conditional is true
-        {
-          invalidMove = true; // a global variable is set to true that a discovered check happens which indicates an invalid move
-          break;
-        }
-      }
-    }
-  }
-}
-
-  if(playerKing == 20)
-  {
-    for(int i = 0; i < 8; i++)
-    {
-      if(res) //break if check is true
-      {
-        break;
-      }
-
-      for(int j = 0; j < 8; j++) // finding all future moves
-      {
-        yf = i; // sets yf to val of i
-        xf = j; // sets xf to val of j
-
-        resNum = pawnTakes(ypos, xpos, yf, xf); // the king is pretending to traverse in a pawnTakes pathway (diagolly one square)
-        if((chessboardNum[yf][xf] == 1) && (resNum == 1)) // if there is a pawn attacking the king like the fxn pawnTakes implements the conditional is true
-        {
-          res = true; // "check" is true and break out of the fxn
-          return res;
-          break;
-        }
-
-        resNum = makeKnightMove(ypos, xpos,  yf,  xf); // the king is pretending to traverse in a makeKnightMove pathway
-        if((chessboardNum[yf][xf] == 2) && (resNum == 1)) // if there is a knight attacking the king like the fxn makeKnightMove implements the conditional is true
-        {
-          res = true; // "check" is true and break out of the fxn
-          return res;
-          break;
-        }
-
-        resNum = makeBishopMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeBishopMove pathway
-        if((chessboardNum[yf][xf] == 3) && (resNum == 1)) // if there is a bishop attacking the king like the fxn makeBishopMove implements the conditional is true
-        {
-          res = true; // "check" is true and break out of the fxn
-          return res;
-          break;
-        }
-
-        resNum = makeRookMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeRookMove pathway
-        if((chessboardNum[yf][xf] == 5) && (resNum == 1)) // if there is a rook attacking the king like the fxn makeRookMove implements the conditional is true
-        {
-          res = true; // "check" is true and break out of the fxn
-          return res;
-          break;
-        }
-
-        resNum = makeQueenMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeQueenMove pathway
-        if((chessboardNum[yf][xf] == 9) && (resNum == 1)) // if there is a queen attacking the king like the fxn makeQueenMove implements the conditional is true
-        {
-        {
-          res = true; // "check" is true and break out of the fxn
-          return res;
-          break;
-        }
-
-        resNum = makeKingMove(ypos, xpos, yf, xf); // the king is pretending to traverse in a makeKingMove pathway
-        if((chessboardNum[yf][xf] == 10) && (resNum == 1)) // if there is a king attacking the king like the fxn makeKingMove implements the conditional is true
-        {
-          invalidMove = true; // a global variable is set to true that a discovered check happens which indicates an invalid move
-          break;
-        }
-      }
-    }
-  }
-}
-
-
-
- 
-  check = false; // check fxn is done
-
-  return res;
-
-}
-
-bool isStalemate()
-{
-  uint8_t xin = currentx;
-  uint8_t yin = currenty;
-  uint8_t xf = futurex;
-  uint8_t yf = futurey;
-  uint8_t movecount50 = 0;
-  uint8_t currentIDs;
-  uint8_t futureIDs;
-  uint8_t currentID = PieceID(yin,xin);
-  uint8_t futureID = PieceID(yf,xf);
-  uint8_t res = 0;
-  bool isStalemate = false;
-  bool pieceCanMove = false;
-  bool notValid = false;
-  check = true;
-
-  if(bot == true)
-  {
-  return 0;
-  }
-
-  if((currentID == 1) || (currentID == 11)) // if currentID is a pawn
-  {
-    res = makePawnMove(yin,xin,yf,xf); // move the pawn if possible
-    if(res == 1)
-    {
-      movecount50 = 0;
-    } 
-  }
-
-  if((futureID == 1) || (futureID == 11))
-  {
-
-    if((currentID == 1) || (currentID == 11)) // if currentID is a pawn
-    {
-      res = makePawnMove(yin,xin,yf,xf); // move the pawn if possible
-    
+        findPiece(20);
+        playerKing = 20;
     }
 
-    if((currentID == 2) || (currentID == 12)) // if currentID is a knight
+    findPiece(playerKing);
+    xin = xpos;
+    yin = ypos;
+
+    int attackerIDs[6] = {0}; // Will be filled based on king color
+
+    if (playerKing == 10) // white king
     {
-
-      res = makeKnightMove(yin,xin,yf,xf); // move the knight if possible
-
+        attackerIDs[0] = 11; // pawn
+        attackerIDs[1] = 12; // knight
+        attackerIDs[2] = 13; // bishop
+        attackerIDs[3] = 15; // rook
+        attackerIDs[4] = 19; // queen
+        attackerIDs[5] = 20; // king
+    }
+    else // black king
+    {
+        attackerIDs[0] = 1;
+        attackerIDs[1] = 2;
+        attackerIDs[2] = 3;
+        attackerIDs[3] = 5;
+        attackerIDs[4] = 9;
+        attackerIDs[5] = 10;
     }
 
-    if((currentID == 3) || (currentID == 13)) // if currentID is a bishop
+    for (int i = 0; i < 8 && !res; i++)
     {
-
-      res = makeBishopMove(yin,xin,yf,xf); // move the bishop if possible
-
-    }
-
-    if((currentID == 5) || (currentID == 15)) // if currentID is a rook
-    {
-
-      res = makeRookMove(yin,xin,yf,xf); // move the rook if possible
-
-    }
-
-    if((currentID == 9) || (currentID == 19)) // if currentID is a queen
-    {
-
-      res = makeQueenMove(yin,xin,yf,xf); // move the queen if possible
-
-    }
-
-    if((currentID == 10) || (currentID == 20)) // if currentID is a king
-    {
-
-      res = makeKingMove(yin,xin,yf,xf); // move the king if possible
-
-    }
-
-    if(currentID == 0) // if selected piece doesn't exist
-    {
-      res = 0; // result is automatically 0 since selected piece is nothing
-    }
-
-    if(res == 1)
-    {
-      movecount50 = 0;
-    }
-  }
-  
-  if(movecount50 == 50)
-  {
-    isStalemate = true;
-  }
-  movecount50++;
-
-  if(playerKing == 20)
-  {
-    uint8_t xking;
-    uint8_t yking;
-    uint8_t pieceId;
-    findPiece(20);
-
-    xking = xpos;
-    yking = ypos;
-    bool checking = true;
-    bool canKingMoveBeMade = false;
-
-     for(int i = 0; i < 7; i++)
-     {
-      if(canKingMoveBeMade)
-      {
-        break;
-      }
-      for(int j = 0; j < 7; j++)
-      {
-       
-        saveChessboardNum();
-
-        
-
-        res = makeKingMove(yking,xking,i,j);
-        
-        if(res == 1)
+        for (int j = 0; j < 8 && !res; j++)
         {
-          checking = isInCheck();
-        }
-          restoreChessboardNum();
+            yf = i;
+            xf = j;
 
-        
-
-        if(!checking)
-        {
-          canKingMoveBeMade = true;
-          break;
-        }
-
-      }
-     }
-
-     for(int i = 0; i < 7; i++)
-     {
-      if(pieceCanMove)
-      {
-        break;
-      }
-      for(int j = 0; j < 7; j++)
-      {
-        if(pieceCanMove)
-        {
-          break;
-        }
-        for(int k = 0; k < 7; k++)
-        {
-          if(pieceCanMove)
-          {
-            break;
-          }
-          for(int l = 0; l < 7; l++)
-          {
-            yin = i; // sets temp var to a value
-            xin = j; // sets temp var to a value
-            yf = k; // sets temp var to a value
-            xf = l; // sets temp var to a value
-            currentIDs = PieceID(yin, xin);
-            check = true;
-
-            if(currentIDs > 10)
+            if (chessboardNum[yf][xf] == attackerIDs[0]) // pawn
             {
-              if((currentIDs == 1) || (currentIDs == 11)) // if currentID is a pawn
-              {
-                res = makePawnMove(yin,xin,yf,xf); // move the pawn if possible
-    
-              }
-
-              if((currentIDs == 2) || (currentIDs == 12)) // if currentID is a knight
-              {
-
-                res = makeKnightMove(yin,xin,yf,xf); // move the knight if possible
-
-              }
-
-              if((currentIDs == 3) || (currentIDs == 13)) // if currentID is a bishop
-              {
-
-                res = makeBishopMove(yin,xin,yf,xf); // move the bishop if possible
-
-              }
-
-              if((currentIDs == 5) || (currentIDs == 15)) // if currentID is a rook
-              {
-
-                res = makeRookMove(yin,xin,yf,xf); // move the rook if possible
-
-              }
-
-              if((currentIDs == 9) || (currentIDs == 19)) // if currentID is a queen
-              {
-
-                res = makeQueenMove(yin,xin,yf,xf); // move the queen if possible
-
-              }
-
-              if((currentIDs == 10) || (currentIDs == 20)) // if currentID is a king
-              {
-
-                res = makeKingMove(yin,xin,yf,xf); // move the king if possible
-
-              }
-
-              if(currentIDs == 0) // if selected piece doesn't exist
-              {
-                res = 0; // result is automatically 0 since selected piece is nothing
-              }
-
-              if((res == 1) && !invalidMove)
-              {
-                pieceCanMove = true;
-                break;
-
-              }
-
-
-
-            }
-            else {
-            //notValid = true;
+                if (pawnTakes(yin, xin, yf, xf))
+                    return true;
             }
 
-          }
-        }
-      }
-     }
-
-
-
-
-
-     check = false;
-
-
-
-     if(!canKingMoveBeMade && !pieceCanMove)
-     {
-      isStalemate = true;
-     } 
-
-
-  }
-
-
-
-
-  if(playerKing == 10)
-  {
-    uint8_t xking;
-    uint8_t yking;
-    uint8_t pieceId;
-     findPiece(10);
-     check = false;
-
-     xking = xpos;
-     yking = ypos;
-     bool checking = true;
-     bool canKingMoveBeMade = false;
-
-     for(int i = 0; i < 7; i++)
-     {
-      if(canKingMoveBeMade)
-      {
-        break;
-      }
-      for(int j = 0; j < 7; j++)
-      {
-        saveChessboardNum();
-
-          
-
-        res = makeKingMove(yking,xking,i,j);
-        if(res == 1)
-        {
-          checking = isInCheck();
-        }
-          restoreChessboardNum();
-
-           
-
-        if(!checking)
-        {
-          canKingMoveBeMade = true;
-          break;
-        }
-
-      }
-     }
-
-     for(int i = 0; i < 7; i++)
-     {
-      if(pieceCanMove)
-      {
-        break;
-      }
-      for(int j = 0; j < 7; j++)
-      {
-        if(pieceCanMove)
-        {
-          break;
-        }
-        for(int k = 0; k < 7; k++)
-        {
-          if(pieceCanMove)
-          {
-            break;
-          }
-          if(pieceCanMove)
-          {
-            break;
-          }
-          for(int l = 0; l < 7; l++)
-          {
-            yin = i; // sets temp var to a value
-            xin = j; // sets temp var to a value
-            yf = k; // sets temp var to a value
-            xf = l; // sets temp var to a value
-            currentIDs = PieceID(yin, xin);
-            check = true;
-
-            if(currentIDs < 11)
+            if (chessboardNum[yf][xf] == attackerIDs[1]) // knight
             {
-              if((currentIDs == 1) || (currentIDs == 11)) // if currentID is a pawn
-              {
-                res = makePawnMove(yin,xin,yf,xf); // move the pawn if possible
-    
-              }
-
-              if((currentIDs == 2) || (currentIDs == 12)) // if currentID is a knight
-              {
-
-                res = makeKnightMove(yin,xin,yf,xf); // move the knight if possible
-
-              }
-
-              if((currentIDs == 3) || (currentIDs == 13)) // if currentID is a bishop
-              {
-
-                res = makeBishopMove(yin,xin,yf,xf); // move the bishop if possible
-
-              }
-
-              if((currentIDs == 5) || (currentIDs == 15)) // if currentID is a rook
-              {
-
-                res = makeRookMove(yin,xin,yf,xf); // move the rook if possible
-
-              }
-
-              if((currentIDs == 9) || (currentIDs == 19)) // if currentID is a queen
-              {
-
-                res = makeQueenMove(yin,xin,yf,xf); // move the queen if possible
-
-              }
-
-              if((currentIDs == 10) || (currentIDs == 20)) // if currentID is a king
-              {
-
-                res = makeKingMove(yin,xin,yf,xf); // move the king if possible
-
-              }
-
-              if(currentIDs == 0) // if selected piece doesn't exist
-              {
-                res = 0; // result is automatically 0 since selected piece is nothing
-              }
-
-              if((res == 1) && !invalidMove)
-              {
-                pieceCanMove = true;
-                break;
-
-              }
+                if (makeKnightMove(yin, xin, yf, xf))
+                    return true;
             }
-            else {
-            //notValid = true;
+
+            if (chessboardNum[yf][xf] == attackerIDs[2]) // bishop
+            {
+                if (makeBishopMove(yin, xin, yf, xf))
+                    return true;
             }
-          }
+
+            if (chessboardNum[yf][xf] == attackerIDs[3]) // rook
+            {
+                if (makeRookMove(yin, xin, yf, xf))
+                    return true;
+            }
+
+            if (chessboardNum[yf][xf] == attackerIDs[4]) // queen
+            {
+                if (makeQueenMove(yin, xin, yf, xf))
+                    return true;
+            }
+
+            if (chessboardNum[yf][xf] == attackerIDs[5]) // enemy king
+            {
+                if (makeKingMove(yin, xin, yf, xf))
+                {
+                    invalidMove = true;
+                    break;
+                }
+            }
         }
-      }
-     }
+    }
+
+    check = false;
+    return res;
+}
+
+/*
 
 
+Stalemate functionality 
+
+  - Purpose
+    * Checks if the player is in a stalemate position
+
+  - Inputs? None. But uses the following global variables
+
+    a) playerKing: the king being evaluated (10 = white, 20 = black)
+    b) currentx, currenty, futurex, futurey: current/future move tracking
+  
+  - Outputs 
+
+    Doesn't modify the board
+  
+  - Return
+
+    - True if stalemate
+    - False if not stalemate
 
 
+*/
+bool isStalemate() {
+    uint8_t xin = currentx;
+    uint8_t yin = currenty;
+    uint8_t xf = futurex;
+    uint8_t yf = futurey;
+    uint8_t res = 0;
+    uint8_t moveCount = 0;
+    uint8_t currentID = PieceID(yin, xin);
+    uint8_t futureID = PieceID(yf, xf);
+    uint8_t currentIDs;
 
-     check = false;
+    bool pieceCanMove = false;
+    bool canKingMove = false;
+    bool isStale = false;
+    bool notValid = false;
 
+    check = true;
 
+    if (bot) return false;
 
-     if(!canKingMoveBeMade && !pieceCanMove && !notValid)
-     {
-      isStalemate = true;
-     } 
+    // Pawn move simulation
+    if (currentID == 1 || currentID == 11)
+    {
+        if (makePawnMove(yin, xin, yf, xf)) moveCount = 0;
+    }
 
+    // If pawn is being captured or involved
+    if (futureID == 1 || futureID == 11)
+    {
+        if (currentID == 1 || currentID == 11) res = makePawnMove(yin, xin, yf, xf);
+        else if (currentID == 2 || currentID == 12) res = makeKnightMove(yin, xin, yf, xf);
+        else if (currentID == 3 || currentID == 13) res = makeBishopMove(yin, xin, yf, xf);
+        else if (currentID == 5 || currentID == 15) res = makeRookMove(yin, xin, yf, xf);
+        else if (currentID == 9 || currentID == 19) res = makeQueenMove(yin, xin, yf, xf);
+        else if (currentID == 10 || currentID == 20) res = makeKingMove(yin, xin, yf, xf);
+        else res = 0;
 
-  }
+        if (res == 1) moveCount = 0;
+    }
 
+    if (moveCount == 50) isStale = true;
+    moveCount++;
 
+    // Get position of the king based on current player
+    findPiece(playerKing);
+    uint8_t kx = xpos;
+    uint8_t ky = ypos;
 
-  return isStalemate;
+    // First check if the king has ANY valid move (that doesn't lead to check)
+    for (int row = 0; row < 8 && !canKingMove; row++)
+    {
+        for (int col = 0; col < 8 && !canKingMove; col++)
+        {
+            saveChessboardNum();
+            if (makeKingMove(ky, kx, row, col))
+            {
+                if (!isInCheck()) canKingMove = true;
+            }
+            restoreChessboardNum();
+        }
+    }
+
+    // Now test if ANY other piece can legally move
+    for (int fromY = 0; fromY < 8 && !pieceCanMove; fromY++)
+    {
+        for (int fromX = 0; fromX < 8 && !pieceCanMove; fromX++)
+        {
+            currentIDs = PieceID(fromY, fromX);
+            if ((playerKing == 20 && currentIDs > 10) || (playerKing == 10 && currentIDs < 11 && currentIDs != 0))
+            {
+                for (int toY = 0; toY < 8 && !pieceCanMove; toY++)
+                {
+                    for (int toX = 0; toX < 8 && !pieceCanMove; toX++)
+                    {
+                        check = true;
+
+                        if (currentIDs == 1 || currentIDs == 11) res = makePawnMove(fromY, fromX, toY, toX);
+                        else if (currentIDs == 2 || currentIDs == 12) res = makeKnightMove(fromY, fromX, toY, toX);
+                        else if (currentIDs == 3 || currentIDs == 13) res = makeBishopMove(fromY, fromX, toY, toX);
+                        else if (currentIDs == 5 || currentIDs == 15) res = makeRookMove(fromY, fromX, toY, toX);
+                        else if (currentIDs == 9 || currentIDs == 19) res = makeQueenMove(fromY, fromX, toY, toX);
+                        else if (currentIDs == 10 || currentIDs == 20) res = makeKingMove(fromY, fromX, toY, toX);
+                        else res = 0;
+
+                        if (res == 1 && !invalidMove)
+                        {
+                            pieceCanMove = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    check = false;
+
+    // Final condition: no king move and no legal piece move
+    if (!canKingMove && !pieceCanMove && !notValid)
+    {
+        isStale = true;
+    }
+
+    return isStale;
 }
 
 // Sets the chessboardNum to the previous move stored by chessboardNumCheck
@@ -2130,271 +1642,132 @@ void undoMove(int yin, int xin, int yf, int xf)
 }
 
 
-// Will check every possible input move and output move and see whether check becomes false in any case
-// Inputs none
-// Output true if checkmate is true and false if checkmate isnt true
+/*
+
+IsInCheckMate FUNCTION : 
+
+ - Purpose 
+
+  - Tells you whether or not a function is in checkmate 
+
+Inputs; None, but global variables are used
+
+  - playerKing: the king being evaluated (10 for white, 20 for black)
+  - chessboardNum[][]: the current game board
+  - xpos, ypos, and other move-related globals
+  - check: whether we're in a state of evaluating check
+
+Outputs:
 
 
-bool isInCheckmate()
+  - True if in checmate ; false otherwise
+
+
+
+*/
+
+
+bool isInCheckmate() 
 {
+    saveChessboardNum(); // Save current board state
 
-  saveChessboardNum(); // Saves chessboard (not needed but used for testing)
-  uint8_t res = 255; // initial value set to 255 (debugging purposes to see if the code ever reaches a conditional and sets it to 0 or 1)
-  bool checkmate = true; // checkmate is true until proven false
-  printcheck = false; // useless line
-  bool iteratteloop = false; //useless line
-  
+    bool checkmate = true;   // Assume checkmate until disproven
+    uint8_t res = 255;       // Result of move attempts
+    uint8_t xin, yin, xf, yf;
+    uint8_t debug_xin, debug_yin, debug_xf, debug_yf;
 
-  uint8_t xin; // initial setup for temp var
-  uint8_t yin; // initial setup for temp var
-  uint8_t yf; // initial setup for temp var
-  uint8_t xf; // initial setup for temp var
-
-  uint8_t xin_1; // initial setup for temp var (debugging purposes)
-  uint8_t yin_1; // initial setup for temp var (debugging purposes)
-  uint8_t yf_1; // initial setup for temp var (debugging purposes)
-  uint8_t xf_1; // initial setup for temp var (debugging purposes)
-
-  if(bot && !needtoCheckmate)
-  {
-  return 0;
-  }
-
-
-
-  for(int i = 0; i < 8; i++)
-  {
-    if(!checkmate) // breaks if checkmate is false
-              {
-                break;
-              }
-    for(int j = 0; j < 8; j++) 
+    for (int fromY = 0; fromY < 8 && checkmate; fromY++)
     {
-      if(!checkmate) // breaks if checkmate is false
-              {
-
-                break;
-              }
-      for(int k = 0; k < 8; k++)
-      {
-        if(!checkmate) // breaks if checkmate is false
-              {
-                break;
-              }
-        for(int l = 0; l < 8; l++) // check all 4096 differnt possibilites of moves that could be made for initial moves and final moves (most are illegal :( )
+        for (int fromX = 0; fromX < 8 && checkmate; fromX++)
         {
-
-          yin = i; // sets temp var to a value
-          xin = j; // sets temp var to a value
-          yf = k; // sets temp var to a value
-          xf = l; // sets temp var to a value
-
-          uint8_t currentID = PieceID(yin,xin); // currentID = corrdiates of yin and xin
-
-          if(((currentID >10) && (playerKing == 20)) || ((currentID <11) && (playerKing == 10))) // checks if attacked king can be saved by moving one of its own pieces (essentally looking 1 move ahead)
-          {
-
-            if((currentID == 1) || (currentID == 11)) // is it a pawn
+            for (int toY = 0; toY < 8 && checkmate; toY++)
             {
-              saveChessboardNum(); // saves chessboard in this state
-              res = makePawnMove(yin,xin,yf,xf); // makes a pawn move and checks validity
-              if(res == 1) // conditional checking validty of the move
-              {
-                checkmate = isInCheck(); // checkmate = chceck + one addional move made
-                restoreChessboardNum(); // restore chessboard to its orginal state
-                if(!checkmate) // breaks if checkmate is false
-                  {
+                for (int toX = 0; toX < 8 && checkmate; toX++)
+                {
+                    yin = fromY;
+                    xin = fromX;
+                    yf = toY;
+                    xf = toX;
 
-                    yin_1 = yin;
-                    xin_1 = xin;
-                    yf_1 = yf;
-                    xf_1 = xf;
-                    break;
-                  }
-              }
-              
-    
+                    uint8_t currentID = PieceID(yin, xin);
+
+                    // Only evaluate pieces that belong to the current player
+                    if ((playerKing == 20 && currentID > 10) || (playerKing == 10 && currentID < 11 && currentID != 0))
+                    {
+                        saveChessboardNum(); // Save before simulating move
+
+                        // Try all legal move types
+                        if ((currentID == 1) || (currentID == 11)) res = makePawnMove(yin, xin, yf, xf);
+                        else if ((currentID == 2) || (currentID == 12)) res = makeKnightMove(yin, xin, yf, xf);
+                        else if ((currentID == 3) || (currentID == 13)) res = makeBishopMove(yin, xin, yf, xf);
+                        else if ((currentID == 5) || (currentID == 15)) res = makeRookMove(yin, xin, yf, xf);
+                        else if ((currentID == 9) || (currentID == 19)) res = makeQueenMove(yin, xin, yf, xf);
+                        else if ((currentID == 10) || (currentID == 20)) res = makeKingMove(yin, xin, yf, xf);
+                        else res = 0;
+
+                        if (res == 1)
+                        {
+                            // Simulate the move and check if king is still in check
+                            if (!isInCheck())
+                            {
+                                checkmate = false;
+                                debug_yin = yin;
+                                debug_xin = xin;
+                                debug_yf = yf;
+                                debug_xf = xf;
+                                restoreChessboardNum(); // Return board to original state
+                                break;
+                            }
+                        }
+
+                        restoreChessboardNum(); // Always restore after sim
+                    }
+                }
             }
-
-          if((currentID == 2) || (currentID == 12)) // is it a knight
-            {
-              saveChessboardNum(); // saves chessboard in this state
-              res = makeKnightMove(yin,xin,yf,xf); // makes a knight move and checks validity
-              if(res == 1) // conditional checking validty of the move
-              {
-                checkmate = isInCheck(); // checkmate = chceck + one addional move made
-                restoreChessboardNum(); // restore chessboard to its orginal state
-                if(!checkmate) // breaks if checkmate is false
-                  {
-                    yin_1 = yin;
-                    xin_1 = xin;
-                    yf_1 = yf;
-                    xf_1 = xf;
-                    break;
-                  }
-              }
-
-            }
-
-          if((currentID == 3) || (currentID == 13))
-            {
-              saveChessboardNum(); // saves chessboard in this state
-              res = makeBishopMove(yin,xin,yf,xf); // makes a bishop move and checks validity
-              if(res == 1) // conditional checking validty of the move
-              {
-                checkmate = isInCheck(); // checkmate = chceck + one addional move made
-                restoreChessboardNum(); // restore chessboard to its orginal state
-                if(!checkmate) // breaks if checkmate is false
-                  {
-                    yin_1 = yin;
-                    xin_1 = xin;
-                    yf_1 = yf;
-                    xf_1 = xf;
-                    break;
-                  }
-              }
-
-            }
-
-          if((currentID == 5) || (currentID == 15))
-            {
-              saveChessboardNum(); // saves chessboard in this state
-              res = makeRookMove(yin,xin,yf,xf); // makes a rook move and checks validity
-              if(res == 1) // conditional checking validty of the move
-              {
-                checkmate = isInCheck(); // checkmate = chceck + one addional move made
-                restoreChessboardNum(); // restore chessboard to its orginal state
-                if(!checkmate) // breaks if checkmate is false
-                  {
-                    yin_1 = yin;
-                    xin_1 = xin;
-                    yf_1 = yf;
-                    xf_1 = xf;
-                    break;
-                  }
-              }
-
-            }
-
-          if((currentID == 9) || (currentID == 19))
-            {
-              saveChessboardNum(); // saves chessboard in this state
-              res = makeQueenMove(yin,xin,yf,xf); // makes a queen move and checks validity
-              if(res == 1) // conditional checking validty of the move
-              {
-                checkmate = isInCheck(); // checkmate = chceck + one addional move made
-                restoreChessboardNum(); // restore chessboard to its orginal state
-                if(!checkmate) // breaks if checkmate is false
-                  {
-                    yin_1 = yin;
-                    xin_1 = xin;
-                    yf_1 = yf;
-                    xf_1 = xf;
-                    break;
-                  }
-              }
-
-            }
-
-          if((currentID == 10) || (currentID == 20))
-            {
-              saveChessboardNum(); // saves chessboard in this state
-              res = makeKingMove(yin,xin,yf,xf); // makes a king move and checks validity
-              if(res == 1) // conditional checking validty of the move
-              {
-                checkmate = isInCheck(); // checkmate = chceck + one addional move made
-                restoreChessboardNum(); // restore chessboard to its orginal state
-                if(!checkmate) // breaks if checkmate is false
-                  {
-                    yin_1 = yin;
-                    xin_1 = xin;
-                    yf_1 = yf;
-                    xf_1 = xf;
-                    break;
-                  }
-              }
-            }
-          }
         }
-      }
-    }
-  }
-
-  if(!isInCheck())
-  {
-    checkmate = false;
-  }
-
-
-  printcheck = true; // not needed
-
-  //check = false;
-  restoreChessboardNum(); // not needed but used for debugging
-  return checkmate;
-  
-
-}
-
-// Prints the state of the board whether its in check, checkmate, or an invalid move has been made
-// Input none
-// Output none
-
-void statusOfBoard()
-{
-  bool checkprint = false; // sets checkprint false until proven true
-  for(int i = 0; i < 4; i++) // looping to make sure it works (not needed but more testing needs to happen)
-  {
-    
-    if(isInCheckmate()) // runs checkmate and sees result
-    {
-
-      printf("Checkmate");
-      printf("\n");
-      break;
-
     }
 
-    if(isStalemate())
-    {
+    // Final check: if king is not even in check to begin with
+    if (!isInCheck()) checkmate = false;
 
-      printf("Stalemate");
-      printf("\n");
-      break;
+    printcheck = true; // not functionally relevant
+    restoreChessboardNum(); // Restore one last time in case of lingering sim state
 
-    }
-
-    if(isInCheck() && !invalidMove && !isInCheckmate()) // determines wheter a "true check" has occured meaning its a clean check and no otehr invalid moves created this check
-    {
-      checkprint = true;
-      
-    }
-
-  }
-
-  if(!isInCheckmate() && checkprint) // if check is true and checkmate is false then check is true
-  {
-    printf("Check");
-    printf("\n");
-
-  }
-
-  if(invalidMove) // if an invalid move is made it will show up here
-  {
-    printf("Invalid Move");
-    printf("\n");
-  }
-
-  
+    return checkmate;
 }
 
 
 
 
 
+/*
 
-//This function will make a move stored in chessboardNum
-//Inputs yin, xin, yf, xf, are all the propesed corrdiantes
-//Output returns res: 1 meaning the move was executed 255 meaning its an invalid move 0 meaning that piece was found but couldnt be moved
+
+MAKE MOVE FUNCTION : 
+
+  - Executes a chess move from one coordinate to another and updates the game state 
+
+  - Furthermore, the function attempts to make a move in the `chessboardNum` array and evaluates the validity of 
+    that move.
+    It checks legality, executes the move, updates whose turn it is, and evaluates game-ending conditions
+    like checkmate and stalemate. If the move exposes the player's king to check (i.e., a discovered check),
+    the move is undone.
+
+ - Inputs: 
+
+    yin, xin, xf, yf
+
+  - Outputs
+
+  chessboardNum[][]: board state is updated with the new piece positions
+  playerKing: toggled to reflect the current player's king
+  invalidMove: flag set to true if move results in discovered check
+  whitewon / blackwon: set to 1 if a checkmate is detected after the move
+
+
+
+*/
+
 uint8_t makeMove(int yin, int xin,int yf, int xf)
 {
   currenty = yin;
@@ -2537,847 +1910,8 @@ if(res == 0)
 }
 
 
-void saveChessboardNumBot()
-{
 
-   for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            chessboardNumSaveBot[i][j] = chessboardNumbot[i][j]; // puts chessboardNum into chessboardNumSave
-        }
-    }
 
-}
-
-void saveChessboardNumBotReset()
-{
-
-   for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            chessboardNumSaveBot[i][j] = chessboardNumSave[i][j]; // puts chessboardNum into chessboardNumSave
-        }
-    }
-
-}
-
-void restoreChessboardBot()
-{
-
-   for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            chessboardNumbot[i][j] = chessboardNum[i][j]; // puts chessboardNumSave[][] into chessboardNum[][]
-        }
-    }
-
-}
-
-void botFromBotSave()
-{
-
-   for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            chessboardNumbot[i][j] = chessboardNumSaveBot[i][j]; // puts chessboardNumSave[][] into chessboardNum[][]
-        }
-    }
-
-}
-
-void restoreChessboardBotReset()
-{
-
-   for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            chessboardNumbot[i][j] = chessboardNum[i][j]; // puts chessboardNumSave[][] into chessboardNum[][]
-        }
-    }
-
-}
-
-
-
-//CHESS BOT
-const int pawnValue = 100;
-const int knightValue = 300;
-const int bishopValue = 300;
-const int rookValue = 500;
-const int queenValue = 900;
-const int kingValue = 2000;
-uint32_t countofBigArray = 0;
-
-int pawnWhiteValues[8][8] = {
-       
-        {5, 10, 10, -20, -20, 10, 10, 5},
-        {5, -5, -10, 0, 0, -10, -5, 5},
-        {-5, 0, 0, 5, 20, 0, 0, -5},
-        {0, 5, 5, 20, 5, 5, 5, 0},
-        {0, 10, 5, 5, 5, 5, 10, 0},
-        {5, 5, 5, 5, 5, 5, 5, 5},
-        {0, 0, 0, 0, 0, 0, 0, 0}
-    };
-
-    int knightWhiteValues[8][8] = {
-        {-50, -40, -30, -30, -30, -30, -40, -50},
-        {-40, -20, 0, 0, 0, 0, -20, -40},
-        {-30, 0, 10, 15, 15, 10, 0, -100},
-        {-30, 5, 15, 20, 20, 15, 5, -100},
-        {-30, 0, 15, 20, 20, 15, 0, -100},
-        {-30, 5, 100, 15, 15, 10, 5, -100},
-        {-40, -20, 0, 5, 5, 0, -20, -40},
-        {-50, -40, -30, -30, -30, -30, -40, -50}
-    };
-
-    int bishopWhiteValues[8][8] = {
-
-        {-20, -10, -10, -10, -10, -10, -10, -20},
-        {-10, 5, 0, 0, 0, 0, 5, -10},
-        {-10, 10, 10, 10, 10, 10, 10, -10},
-        {-10, 0, 10, 10, 10, 10, 0, -10},
-        {-10, 5, 5, 10, 10, 5, 5, -10},
-        {-10, 0, 5, 10, 10, 5, 0, -10},
-        {-10, 0, 0, 0, 0, 0, 0, -10},
-        {-20, -10, -10, -10, -10, -10, -10, -20},
-    };
-
-    int rookWhiteValues[8][8] = {
-
-        {0, 0, 0, 5, 5, 0, 0, 0},
-        {-5, 0, 0, 0, 0, 0, 0, -5},
-        {-5, 0, 0, 0, 0, 0, 0, -5},
-        {-5, 0, 0, 0, 0, 0, 0, -5},
-        {-5, 0, 0, 0, 0, 0, 0, -5},
-        {-5, 0, 0, 0, 0, 0, 0, -5},
-        {5, 10, 10, 10, 10, 10, 10, 5},
-        {0, 0, 0, 0, 0, 0, 0, 0},
-
-    };
-
-    int queenWhiteValues[8][8] = {
-
-        {-20, -10, -10, -5, -5, -10, -10, -20},
-        {-10, 0, 5, 0, 0, 0, 0, -10},
-        {-10, 5, 5, 5, 5, 5, 5, -10},
-        {0, 0, 5, 5, 5, 5, 0, -5},
-        {-5, 0, 5, 5, 5, 5, 0, -5},
-        {-10, 0, 5, 5, 5, 5, 0, -10},
-        {-10, 0, 0, 0, 0, 0, 0, -10},
-        {-20, -10, -10, -5, -5, -10, -10, -20},
-    };
-
-    int kingWhiteValues[8][8] = {
-
-        {20, 30, 10, 0, 0, 10, 30, 20},
-        {20, 20, 0, 0, 0, 0, 20, 20},
-        {-10, -20, -20, -20, -20, -20, -20, -10},
-        {-20, -30, -30, -40, -40, -30, -30, -20},
-        {-30, -40, -40, -50, -50, -40, -40, -100},
-        {-30, -40, -40, -50, -50, -40, -40, -100},
-        {-30, -40, -40, -50, -50, -40, -40, -100},
-        {-30, -40, -40, -50, -50, -40, -40, -100},
-
-    };
-
-
-    int pawnBlackValues[8][8] = {
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {5, 5, 5, 5, 5, 5, 5, 5},
-        {5, 10, 20, 5, 5, 20, 10, 5},
-        {0, 0, 0, 25, 25, 5, 5, 5},
-        {0, 0, 0, 20, 20, 0, 0, 0},
-        {5, -5, -10, 0, 0, -10, -5, 5},
-        {5, 0, 0, -20, -20, 0, 0, 5},
-        {0, 0, 0, 0, 0, 0, 0, 0}
-    };
-
-
-    int knightBlackValues[8][8] = {
-        {-50, -40, -30, -30, -30, -30, -40, -50},
-        {-40, -20, 0, 0, 0, 0, -20, -40},
-        {-30, 0, 10, 15, 15, 10, 0, -30},
-        {-30, 5, 15, 20, 20, 15, 5, -30},
-        {-30, 0, 15, 20, 20, 15, 0, -30},
-        {-30, 5, 100, 15, 15, 10, 5, -30},
-        {-40, -20, 0, 5, 5, 0, -20, -40},
-        {-50, -40, -30, -30, -30, -30, -40, -50}
-    };
-
-    int bishopBlackValues[8][8] = {
-        {-20, -10, -10, -10, -10, -10, -10, -20},
-        {-10, 0, 0, 0, 0, 0, 0, -10},
-        {-10, 0, 5, 10, 10, 5, 0, -10},
-        {-10, 5, 5, 10, 10, 5, 5, -10},
-        {-10, 0, 10, 10, 10, 10, 0, -10},
-        {-10, 10, 10, 10, 10, 10, 10, -10},
-        {-10, 5, 0, 0, 0, 0, 5, -10},
-        {-20, -10, -10, -10, -10, -10, -10, -20}
-    };
-
-    int rookBlackValues[8][8] = {
-        {0, 0, 0, 0, 0, 0, 0, 0},
-        {5, 10, 10, 10, 10, 10, 10, 5},
-        {-5, 0, 0, 0, 0, 0, 0, -5},
-        {-5, 0, 0, 0, 0, 0, 0, -5},
-        {-5, 0, 0, 0, 0, 0, 0, -5},
-        {-5, 0, 0, 0, 0, 0, 0, -5},
-        {-5, 0, 0, 0, 0, 0, 0, -5},
-        {0, 0, 0, 5, 5, 0, 0, 0}
-    };
-
-    int queenBlackValues[8][8] = {
-        {-20, -10, -10, -5, -5, -10, -10, -20},
-        {-10, 0, 0, 0, 0, 0, 0, -10},
-        {-10, 0, 5, 5, 5, 5, 0, -10},
-        {-5, 0, 5, 5, 5, 5, 0, -5},
-        {0, 0, 5, 5, 5, 5, 0, -5},
-        {-10, 5, 5, 5, 5, 5, 5, -10},
-        {-10, 0, 5, 0, 0, 0, 0, -10},
-        {-20, -10, -10, -5, -5, -10, -10, -20}
-    };
-
-    int kingBlackValues[8][8] = {
-        {-30, -40, -40, -50, -50, -40, -40, -30},
-        {-30, -40, -40, -50, -50, -40, -40, -30},
-        {-30, -40, -40, -50, -50, -40, -40, -30},
-        {-30, -40, -40, -50, -50, -40, -40, -30},
-        {-20, -30, -30, -40, -40, -30, -30, -20},
-        {-10, -20, -20, -20, -20, -20, -20, -10},
-        {20, 20, 0, 0, 0, 0, 20, 20},
-        {20, 30, 10, 0, 0, 10, 30, 20}
-    };
-
-
-
-
-
-
-
-int32_t countWhiteMaterial(uint8_t yin, uint8_t xin, uint8_t yf, uint8_t xf)
-{
-  int32_t material = 0;
-  int32_t temVal;
-
-  for(int i = 0; i < 8; i++)
-  {
-    for(int j = 0; j < 8; j++)
-    {
-      if(PieceIDBot(i, j) > 10)
-      {
-        temVal = PieceIDBot(i, j);
-        if(temVal == 11)
-        {
-          material += 1000;
-
-        }
-
-        if(temVal == 12)
-        {
-          material += 3000;
-        } 
-
-        if(temVal == 13)
-        {
-          material += 3000;
-        } 
-
-        if(temVal == 15)
-        {
-          material += 5000;
-        } 
-
-        if(temVal == 19)
-        {
-          material += 9000;
-        }
-
-        if(temVal == 20)
-        {
-          material += 20000;
-        }    
-
-      }
-      
-    }
-  }
-
-  return material;
-
-}
-
-
-int32_t countBlackMaterial(uint8_t yin, uint8_t xin, uint8_t yf, uint8_t xf)
-{
-  int32_t material = 0;
-  int32_t temVal;
-
-  for(int i = 0; i < 8; i++)
-  {
-    for(int j = 0; j < 8; j++)
-    {
-      if(PieceIDBot(i, j) < 11 && PieceIDBot(i, j) !=0)
-      {
-        temVal = PieceIDBot(i, j);
-        if(temVal == 1)
-        {
-          material -= 1000;
-        }
-
-        if(temVal == 2)
-        {
-          material -= 3000;
-        } 
-
-        if(temVal == 3)
-        {
-          material -= 3000;
-        } 
-
-        if(temVal == 5)
-        {
-          material -= 5000;
-        } 
-
-        if(temVal == 9)
-        {
-          material -= 9000;
-        }
-
-        if(temVal == 10)
-        {
-          material -= 20000;
-        }    
-
-      }
-      
-    }
-  }
-
-  return material;
-
-}
-
-
-
-uint32_t Evaluate(uint8_t yin, uint8_t xin, uint8_t yf,  uint8_t xf)
-{
-  int Evaluation;
-  int32_t whiteEval = countWhiteMaterial(yin, xin, yf, xf);
-  int32_t blackEval = countBlackMaterial(yin, xin, yf, xf);
-
-   Evaluation = whiteEval + blackEval;
-
-  return Evaluation;
-
-
-}
-
-void clearGenerateLegalMoves()
-{
-  for(int i = 0; i < 2500; i++)
-  {
-    for(int j = 0; j < 3; j++)
-    {
-
-      allPossMovesWhite[i][j] = 0;
-      allPossMovesBlack[i][j] = 0;
-
-    }
-  }
-}
-
-void GenerateLegalWhiteMoves()
-{
-  uint32_t count = 0;
-  uint8_t yin;
-  uint8_t xin;
-  uint8_t yf;
-  uint8_t xf;
-  uint8_t res;
-
-
-for(int i = 0; i < 8; i++)
-{
-for(int j = 0; j < 8; j++) 
-{
-
-for(int k = 0; k < 8; k++)
-{
-
-for(int l = 0; l < 8; l++) // check all 4096 differnt possibilites of moves that could be made for initial moves and final moves (most are illegal :( )
-{
-   yin = i;
-  xin = j;
-  yf = k;
-  xf = l;
-  uint8_t currentID = PieceIDBot(yin,xin);
-  uint8_t futureID = PieceIDBot(yf,xf);
-
-  check = true;
-  bot = false;
-
-  if(currentID > 10)
-  {
-
-
-  if(currentID == 11) // if currentID is a pawn
-  {
-    res = makePawnMove(yin,xin,yf,xf); // move the pawn if possible
-    
-  }
-
-  if(currentID == 12) // if currentID is a knight
-  {
-
-    res = makeKnightMove(yin,xin,yf,xf); // move the knight if possible
-
-  }
-
-  if(currentID == 13) // if currentID is a bishop
-  {
-
-    res = makeBishopMove(yin,xin,yf,xf); // move the bishop if possible
-
-  }
-
-  if(currentID == 15) // if currentID is a rook
-  {
-
-    res = makeRookMove(yin,xin,yf,xf); // move the rook if possible
-
-  }
-
-  if(currentID == 19) // if currentID is a queen
-  {
-
-    res = makeQueenMove(yin,xin,yf,xf); // move the queen if possible
-
-  }
-
-  if(currentID == 20) // if currentID is a king
-  {
-
-    res = makeKingMove(yin,xin,yf,xf); // move the king if possible
-
-  }
-
-  if(currentID == 0) // if selected piece doesn't exist
-  {
-    res = 0; // result is automatically 0 since selected piece is nothing
-  }
-
-  if(res == 1)
-  {
-
-    allPossMovesWhite[count][0] = yin;
-    allPossMovesWhite[count][1] = xin;
-    allPossMovesWhite[count][2] = yf;
-    allPossMovesWhite[count][3] = xf;
-    count++;
-    
-  }
-
-}
-}
-}
-}
-    
-}
-
-allPossMovesWhite[count][0] = 10;
-    allPossMovesWhite[count][1] = 10;
-    allPossMovesWhite[count][2] = 10;
-    allPossMovesWhite[count][3] = 10;
-    check = false;
-    bot = true;
-    countofBigArray = count;
-}
-
-
-void GenerateLegalBlackMoves()
-{
-  uint32_t count = 0;
-  uint8_t yin;
-  uint8_t xin;
-  uint8_t yf;
-  uint8_t xf;
-  uint8_t res;
-
-
-for(int i = 0; i < 8; i++)
-{
-for(int j = 0; j < 8; j++) 
-{
-
-for(int k = 0; k < 8; k++)
-{
-
-for(int l = 0; l < 8; l++) // check all 4096 differnt possibilites of moves that could be made for initial moves and final moves (most are illegal :( )
-{
-   yin = i;
-  xin = j;
-  yf = k;
-  xf = l;
-  uint8_t currentID = PieceIDBot(yin,xin);
-  uint8_t futureID = PieceIDBot(yf,xf);
-
-  check = true;
-  bot = false;
-
-  if((currentID < 11) && (currentID != 0))
-  {
-
-
-  if(currentID == 1) // if currentID is a pawn
-  {
-    res = makePawnMove(yin,xin,yf,xf); // move the pawn if possible
-    
-  }
-
-  if(currentID == 2) // if currentID is a knight
-  {
-
-    res = makeKnightMove(yin,xin,yf,xf); // move the knight if possible
-
-  }
-
-  if(currentID == 3) // if currentID is a bishop
-  {
-
-    res = makeBishopMove(yin,xin,yf,xf); // move the bishop if possible
-
-  }
-
-  if(currentID == 4) // if currentID is a rook
-  {
-
-    res = makeRookMove(yin,xin,yf,xf); // move the rook if possible
-
-  }
-
-  if(currentID == 5) // if currentID is a queen
-  {
-
-    res = makeQueenMove(yin,xin,yf,xf); // move the queen if possible
-
-  }
-
-  if(currentID == 6) // if currentID is a king
-  {
-
-    res = makeKingMove(yin,xin,yf,xf); // move the king if possible
-
-  }
-
-  if(currentID == 0) // if selected piece doesn't exist
-  {
-    res = 0; // result is automatically 0 since selected piece is nothing
-  }
-
-  if(res == 1)
-  {
-
-    allPossMovesBlack[count][0] = yin;
-    allPossMovesBlack[count][1] = xin;
-    allPossMovesBlack[count][2] = yf;
-    allPossMovesBlack[count][3] = xf;
-    count++;
-    
-  }
-
-}
-}
-}
-}
-    
-}
-
-allPossMovesBlack[count][0] = 10;
-    allPossMovesBlack[count][1] = 10;
-    allPossMovesBlack[count][2] = 10;
-    allPossMovesBlack[count][3] = 10;
-    check = false;
-    bot = true;
-    countofBigArray = count;
-}
-
-void createFirstArr()
-{
-  int i = -1;
-  do {
-  i++;
-  firstWhiteMoves[i][0] = allPossMovesWhite[i][0];
-  firstWhiteMoves[i][1] = allPossMovesWhite[i][1];
-  firstWhiteMoves[i][2] = allPossMovesWhite[i][2];
-  firstWhiteMoves[i][3] = allPossMovesWhite[i][3];
-  
-  }while (allPossMovesWhite[i][0] != 10);
-}
-
-int PieceValMoved(uint8_t yin, uint8_t xin, uint8_t yf, uint8_t xf)
-{
-
-  int res;
-  uint8_t currentID = PieceIDBot(yin,xin);
-  uint8_t futureID = PieceIDBot(yf,xf);
-  
-
-  if(futureID == 11) // if currentID is a pawn
-  {
-    res = pawnWhiteValues[yf][xf]; // move the pawn if possible
-    
-  }
-
-  if(futureID == 12) // if currentID is a knight
-  {
-
-    res = knightWhiteValues[yf][xf]; // move the knight if possible
-
-  }
-
-  if(futureID == 13) // if currentID is a bishop
-  {
-
-    res = bishopWhiteValues[yf][xf]; // move the bishop if possible
-
-  }
-
-  if(futureID == 15) // if currentID is a rook
-  {
-
-    res = rookWhiteValues[yf][xf]; // move the rook if possible
-
-  }
-
-  if(futureID == 19) // if currentID is a queen
-  {
-
-    res = queenWhiteValues[yf][xf]; // move the queen if possible
-
-  }
-
-  if(futureID == 20) // if currentID is a king
-  {
-
-    res = kingWhiteValues[yf][xf]; // move the king if possible
-
-  }
-
-  if(futureID == 1) // if currentID is a pawn
-  {
-    res = -1*pawnBlackValues[yf][xf]; // move the pawn if possible
-    
-  }
-
-  if(futureID == 2) // if currentID is a knight
-  {
-
-    res = -1*knightBlackValues[yf][xf]; // move the knight if possible
-
-  }
-
-  if(futureID == 3) // if currentID is a bishop
-  {
-
-    res = -1*bishopBlackValues[yf][xf]; // move the bishop if possible
-
-  }
-
-  if(futureID == 5) // if currentID is a rook
-  {
-
-    res = -1*rookBlackValues[yf][xf]; // move the rook if possible
-
-  }
-
-  if(futureID == 9) // if currentID is a queen
-  {
-
-    res = -1*queenBlackValues[yf][xf]; // move the queen if possible
-
-  }
-
-  if(futureID == 10) // if currentID is a king
-  {
-
-    res = -1*kingBlackValues[yf][xf]; // move the king if possible
-
-  }
-
-  if(futureID == 0) // if selected piece doesn't exist
-  {
-    res = 0; // result is automatically 0 since selected piece is nothing
-  }
-
-  if(isInCheckmate())
-  {
-    if(futureID > 10)
-    {
-      res -= 2000;
-    }
-    else {
-    res += 2000;
-    }
-    
-  }
-
-  return res;
-
-}
-
-
-
-int Max(int a, int b) {
-  if (a > b) {
-    return a;
-  } else {
-    return b;
-  }
-}
-
-int Min(int a, int b) {
-  if (a < b) {
-    return a;
-  } else {
-    return b;
-  }
-}
-
-
-
-
-// Alpha-Beta Pruning with Cleaned-Up Logic
-
-
-uint8_t yin = 0;
-  uint8_t xin = 0;
-  uint8_t yf = 0;
-  uint8_t xf = 0;
-  uint8_t currentID;
-  bool isRecivingdata = false;
-  int MyMaxValue = -100000;
-int miniMax(int evaluation, int depth, int alpha, int beta, bool isWhite, uint8_t yin, uint8_t xin, uint8_t yf, uint8_t xf)
-{
-  
-  GPIOA->DOUTTGL31_0 = (1 << 16);
-  uint8_t arrcounts = 0;
-  bot = true;
-  Searchcount++;
-  
-  int maxEval;
-  
-  int minEval;
-  int eval;
-  int tempEval;
-  int temp;
-  int temp1;
-  
-  if(depth == 0)
-  {
-    
-    temp = Evaluate(yin, xin, yf, xf);
-    temp1 = PieceValMoved(yin, xin, yf, xf);
-    temp = temp + temp1;
-    tempEval = temp;
-
-    if ((tempEval > MyMaxValue)) {
-                
-
-                // Save best move
-                botYin = yin;
-                botXin = xin;
-                botYf = yf;
-                botXf = xf;
-            }
-        MyMaxValue = Max(MyMaxValue, tempEval);
-    restoreChessboardBot();
-    return temp;
-  }
-
-  if(isWhite)
-  {
-    maxEval = -100000;
-    arrcounts = 0;
-    GenerateLegalWhiteMoves();
-    while(allPossMovesWhite[arrcounts][0] != 10)
-    {
-    yin = allPossMovesWhite[arrcounts][0];
-    xin = allPossMovesWhite[arrcounts][1];
-    yf = allPossMovesWhite[arrcounts][2];
-    xf = allPossMovesWhite[arrcounts][3];
-    arrcounts++;
-    if(PieceID(yin, xin) > 10)
-    {
-      saveChessboardNumBot();  
-      makeMove(yin, xin, yf, xf);
-      
-      //tempEval = Evaluate(yin, xin, yf, xf) + PieceValMoved(yin, xin, yf, xf);
-      
-      
-      
-
-      eval = miniMax(tempEval, (depth -1) , alpha, beta, false, yin, xin, yf, xf);
-      
-     
-
-      
-
-      maxEval = Max(maxEval, eval);
-      alpha = Max(alpha, eval);
-
-      
-
-      if(beta <= alpha)
-      {
-        break;
-      }
-
-    }
-    }
-
-    
-    return maxEval;
-    
-
-  }
-  else 
-  {
-
-    minEval = 100000;
-    arrcounts = 0;
-    GenerateLegalBlackMoves();
-    while(allPossMovesBlack[arrcounts][0] != 10)
-    {
-    yin = allPossMovesBlack[arrcounts][0] ;
-    xin = allPossMovesBlack[arrcounts][1];
-    yf = allPossMovesBlack[arrcounts][2];
-    xf = allPossMovesBlack[arrcounts][3];
-    arrcounts++;
-    if(PieceID(yin, xin) < 11)
-    {
-      saveChessboardNumBot();  
-      makeMove(yin, xin, yf, xf);
-      
-      //tempEval = Evaluate(yin, xin, yf, xf) + PieceValMoved(yin, xin, yf, xf);
-      tempEval = tempEval;
-      
-
-      eval = miniMax(tempEval, depth -1 , alpha, beta, true, yin, xin, yf, xf);
-      minEval = Min(minEval, eval);
-      beta = Min(beta, eval);
-      if(beta <= alpha)
-      {
-        break;
-      }
-
-     
-
-      
-
-    }
-    }
-
-    
-    return minEval;
-  
-  }
-}
 
 //Have fun creating your own chess games
 //Only need to use makeMove(x1,y1,x2,y2) and everything else will be done for you :)
@@ -3406,11 +1940,37 @@ void mySysTick_IntArm(uint32_t period, uint32_t priority){
 }
 
 
+/*
 
+
+Function: JOYSTICK READINGS
+
+ - Purpose
+
+  - Handles cursor movement using joystick input and performs piece movement on button press 
+
+ - Inputs
+
+  - Uses global variables
+
+    x,y as joystick readings 
+    double click for slecting/deselecting 
+    yin1, xin1, yf1, xf1 for propossed start and end position 
+    player1mode for if human input is active 
+    flag and datas from ADC 
+
+ - Outputs
+
+   Pretty much affects everyhting (no direct output)
+
+
+
+
+*/
 void joyStickReadings()
 {
   uint32_t res;
-  res = ButtonIn() - 16;
+  res = ButtonIn() - 16; // reads initial button state 
   ADC_InitTriple(ADC1, 4, 5, 6, ADCVREF_VDDA);
   uint32_t temp;
   uint32_t Position;
@@ -3423,13 +1983,13 @@ void joyStickReadings()
 
   Time = 0;
   __enable_irq();
-  while(1){
+  while(1){ // waits for a timed semaphore flag 
       // write this
 
       if(flag)
       {
         flag = 0;
-       Position = Convert(datas);
+       Position = Convert(datas); // convert to a meaningful position
        GPIOB->DOUTTGL31_0 = RED; // toggle PB26 (minimally intrusive debugging)
     // toggle red LED2 on Port B, PB26
      // convert Data to Position
@@ -3608,7 +2168,7 @@ TimerG0counts = 0;
             ST7735_FillRect(xin1*16, yin1*20, 16, 20, ST7735_Color565(210, 180, 140));
           }
           else {
-          ST7735_FillRect(xin1*16, yin1*20, 16, 20, ST7735_Color565(101, 67, 33));
+          ST7735_FillRect(xin1*16, yin1*20, 16, 20, ST7735_Color565(34, 85, 34));
           }
 
         }
@@ -3700,7 +2260,7 @@ TimerG0counts = 0;
             ST7735_FillRect(xin1*16, yin1*20, 16, 20, ST7735_Color565(210, 180, 140));
           }
           else {
-          ST7735_FillRect(xin1*16, yin1*20, 16, 20, ST7735_Color565(101, 67, 33));
+          ST7735_FillRect(xin1*16, yin1*20, 16, 20, ST7735_Color565(34, 85, 34));
           }
 
         }
@@ -3742,8 +2302,21 @@ TimerG0counts = 0;
       TimerG0counts = 0;
       mySysTick_IntArm(7256, 0);
         TimerG0_IntArm(7256, 0, 0);
+        if(chessboardNum[yf1][xf1] == 12 || chessboardNum[yf1][xf1] == 2)
+        {
+          Sound_Start(2, vol);
+          soundpause = 40;
+        }
+        else if (chessboardNum[yf1][xf1] == 13 || chessboardNum[yf1][xf1] == 3 || chessboardNum[yf1][xf1] == 15 || chessboardNum[yf1][xf1] == 5 || chessboardNum[yf1][xf1] == 19 || chessboardNum[yf1][xf1] == 9) {
+          Sound_Start(1, vol);
+          soundpause = 20;
+        }
+        else {
+        Sound_Start(0, vol);
+        soundpause = 4;
+        }
         Sound_Init();
-      while(TimerG0counts != 4)
+      while(TimerG0counts != soundpause)
       {
 
         
@@ -3756,541 +2329,20 @@ TimerG0counts = 0;
   }
 }
 
-void joyStickReadingsBot()
-{
 
-  uint32_t res;
-  res = ButtonIn() - 16;
-  ADC_InitTriple(ADC1, 4, 5, 6, ADCVREF_VDDA);
-  uint32_t temp;
-  uint32_t Position;
-  
-  
-
-    
-
-  // initialize semaphore
-
-  Time = 0;
-  __enable_irq();
-  while(1){
-      // write this
-
-      if(flag)
-      {
-        flag = 0;
-       Position = Convert(datas);
-       GPIOB->DOUTTGL31_0 = RED; // toggle PB26 (minimally intrusive debugging)
-    // toggle red LED2 on Port B, PB26
-     // convert Data to Position
-     // move cursor to top
-    // display distance in top row OutFix
-
-    Time++;
-    if((Time%15)==0){
-      //OutFix(Position);
-     
-      break;
-    }
-    }
-      }
-
- uint32_t xtemp;
-uint32_t ytemp;
-TimerG0counts = 0;
-
-
-
-  drawHollowBox();
-
- 
-   while(TimerG0counts != 4000)
- {
-
- 
-  xtemp = 4096 - x;
-  ytemp = y;
-
-  if(xtemp > 3700)
-  {
-    if(xarr < 8)
-    {
-
-    xarr++;
-    xplot+=16;
-    
-
-    }
-
-    break;
-    
-    
-
-  }
-
-  if(xtemp < 300)
-  {
-    if(xarr > 1)
-    {
-
-    xarr--;
-    xplot-=16;
-    
-
-    }
-
-    break;
-    
-    
-
-  }
-
-  if(ytemp > 3700)
-  {
-    if(yarr < 8)
-    {
-
-    yarr++;
-    yplot+=20;
-    
-
-    }
-
-    break;
-    
-    
-
-  }
-
-  if(ytemp < 300)
-  {
-    if(yarr > 1)
-    {
-
-    yarr--;
-    yplot-=20;
-    
-
-    }
-
-    break;
-    
-
-  }
-
-  if(doubleclick == 2)
-  {
-    break;
-  }
-  
- }
-
-  
-
-  if((agreeddraw != 1) || actMiniMax)
-  {
-
-    
-
-    if(actMiniMax)
-  {
-
-      needtoCheck = true;
-      needtoCheckmate = true;
-      bool breakoutofloop = false;
-
-
-      if(isInCheck())
-      {
-        for(int i = 0; i < 8; i++)
-        {
-          if(breakoutofloop)
-          {
-            break;
-          }
-          for(int j = 0; j < 8; j++)
-          {
-            if(breakoutofloop)
-            {
-              break;
-            }
-            for(int k = 0; k < 8; k++)
-            {
-              if(breakoutofloop)
-              {
-                break;
-              }
-              for(int l = 0; l < 8; l++)
-              {
-
-                isplacing = true;
-                check = false;
-                SpecialsaveChessboardNum();
-                restoreChessboardBotReset();
-                GPIOA->DOUTTGL31_0 = (1 << 16);
-                if(PieceID(i, j) > 10)
-                {
-
-                  makeMove(i, j, k, l);
-
-                }
-                
-                if(!isInCheck())
-                {
-                  yin1 = i;
-                  xin1 = j;
-                  yf1 = k;
-                  xf1 = l;
-                  breakoutofloop = true;
-                  canBotDeflectCheck = true;
-                  whitewon = 0;
-                  blackwon = 0;
-                  SpecialRestoreChessboardNum();
-                restoreChessboardBotReset();
-                  
-                }
-                SpecialRestoreChessboardNum();
-                restoreChessboardBotReset();
-                isplacing = false;
-                check = true;
-                if(breakoutofloop)
-                {
-                  break;
-                }
-
-              }
-            }
-          }
-        }
-
-        if(isInCheckmate())
-        {
-
-        }
-
-        needtoCheck = false;
-        needtoCheckmate = false;
-
-        
-      }
-
-      else {
-
-        needtoCheck = false;
-        needtoCheckmate = false;
-
-        
-      
-      
-
-      
-
-      int32_t temp;
-
-      restoreChessboardBotReset();
-      SpecialRestoreChessboardNum();
-      restoreChessboardNum();
-      restoreChessboardBot();
-
-      temp = Evaluate(0, 0, 0, 0);
-      clearGenerateLegalMoves();
-      saveChessboardNum();
-      saveChessboardNumBot();
-      SpecialsaveChessboardNum();
-      //GenerateLegalMoves();
-      TimerG0counts = 0;
-
-
-      miniMax(0,3, -100000, 100000, true, 0, 0, 0, 0);
-      player1Mode = true;
-      MyMaxValue = -100000;
-
-      yin1 = botYin;
-      xin1 = botXin;
-      yf1 = botYf;
-      xf1 = botXf;
-
-    
-      
-      
-
-      restoreChessboardBotReset();
-      SpecialRestoreChessboardNum();
-      restoreChessboardNum();
-      restoreChessboardBot();
-      
-
-      bot = false;
-      check = false;
-
-      restoreChessboardBotReset();
-      
-
-
-
-      
-
-      
-      
-    }
-
-      
-     
-      isplacing = true;
-      bot = true;
-      check = false;
-
-      
-      if((chessturn == 1) && (chessboardNum[yin1][xin1] > 10))
-    {
-      
-      if(makeMove(yin1, xin1, yf1, xf1) == 1)
-      {
-        chessturn = 0;
-        playerKing = 20;
-
-        if(chessboardNum[yf1][xf1] == 11)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, WhitePawn, 16, 16);
-
-        }
-
-        if(chessboardNum[yf1][xf1] == 12)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, WhiteKnight, 16, 16);
-
-        }
-
-        if(chessboardNum[yf1][xf1] == 13)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, WhiteBishop, 16, 16);
-
-        }
-
-        if(chessboardNum[yf1][xf1] == 15)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, WhiteRook, 16, 16);
-
-        }
-
-        if(chessboardNum[yf1][xf1] == 19)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, WhiteQueen, 16, 16);
-
-        }
-
-        if(chessboardNum[yf1][xf1] == 20)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, WhiteKing, 16, 16);
-
-        }
-
-        
-        if(!invalidMove)
-        {
-
-          if(whiteOrBlack[yin1][xin1] == 1)
-          {
-            ST7735_FillRect(xin1*16, yin1*20, 16, 20, ST7735_Color565(210, 180, 140));
-          }
-          else {
-          ST7735_FillRect(xin1*16, yin1*20, 16, 20, ST7735_Color565(101, 67, 33));
-          }
-
-        }
-        else {
-        playerKing = 10;
-        chessturn = 1;
-        }
-
-        if(chessturn == 0 && !invalidMove)
-    {
-      GPIOA->DOUTSET31_0 = (1 << 15);
-      GPIOA->DOUTCLR31_0 = (1 << 16);
-      GPIOA->DOUTCLR31_0 = (1 << 17);
-    }
-    if(chessturn == 1 && !invalidMove){
-      GPIOA->DOUTCLR31_0 = (1 << 15);
-      GPIOA->DOUTCLR31_0 = (1 << 16);
-      GPIOA->DOUTSET31_0 = (1 << 17);
-      
-    }
-
-    invalidMove = false;
-        
-
-        
-
-
-
-      }
-    }
-
-    isplacing = false;
-      bot = false;
-      check = true;
-
-
-
-
-
-  }
-
-    actMiniMax = false;
-  if(doubleclick == 2)
-  {
-    doubleclick = 0;
-
-  
-  isplacing = true;
-      bot = true;
-      check = false;
-    if((chessturn == 0) && (chessboardNum[yin1][xin1] < 11) && (chessboardNum[yin1][xin1] != 0))
-    {
-      
-      if(makeMove(yin1, xin1, yf1, xf1) == 1)
-      {
-        chessturn = 1;
-        playerKing = 10;
-
-         if(chessboardNum[yf1][xf1] == 1)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, BlackPawn, 16, 16);
-
-        }
-
-        if(chessboardNum[yf1][xf1] == 2)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, BlackKnight, 16, 16);
-
-        }
-
-        if(chessboardNum[yf1][xf1] == 3)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, BlackBishop, 16, 16);
-
-        }
-
-        if(chessboardNum[yf1][xf1] == 5)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, BlackRook, 16, 16);
-
-        }
-
-        if(chessboardNum[yf1][xf1] == 9)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, BlackQueen, 16, 16);
-
-        }
-
-        if(chessboardNum[yf1][xf1] == 10)
-        {
-
-          ST7735_DrawBitmap(xf1*16, yf1*20+17, BlackKing, 16, 16);
-
-        }
-
-        
-        
-        if(!invalidMove)
-        {
-
-          if(whiteOrBlack[yin1][xin1] == 1)
-          {
-            ST7735_FillRect(xin1*16, yin1*20, 16, 20, ST7735_Color565(210, 180, 140));
-          }
-          else {
-          ST7735_FillRect(xin1*16, yin1*20, 16, 20, ST7735_Color565(101, 67, 33));
-          }
-
-        }
-        else {
-        playerKing = 20;
-        chessturn = 0;
-        }
-
-        if(chessturn == 0 && !invalidMove)
-    {
-      GPIOA->DOUTSET31_0 = (1 << 15);
-      GPIOA->DOUTCLR31_0 = (1 << 16);
-      GPIOA->DOUTCLR31_0 = (1 << 17);
-      
-    }
-     if(chessturn == 1 && !invalidMove){
-      GPIOA->DOUTCLR31_0 = (1 << 15);
-      GPIOA->DOUTCLR31_0 = (1 << 16);
-      GPIOA->DOUTSET31_0 = (1 << 17);
-
-      
-      
-    }
-
-    
-
-    
-        
-
-        invalidMove = false;
-
-
-
-      }
-
-      
-    }
-  }
-
-  isplacing = false;
-      bot = false;
-      check = true;
-    if(!invalidMove)
-    {
-      TimerG0counts = 0;
-      mySysTick_IntArm(7256, 0);
-        TimerG0_IntArm(7256, 0, 0);
-        Sound_Init();
-      while(TimerG0counts != 4)
-      {
-
-        
-        
-      }
-      mySysTick_IntArm(0, 0);
-        TimerG0_IntArm(0, 1, 0);
-      TimerG0counts = 0;
-    }
-
-    
-  }
-
-}  
 
   
 
   
 
     
-
-  
-
-
 
 
 void setup(void)
 {
-   uint16_t lightBrown = ST7735_Color565(210, 180, 140);   // Example Tan
-uint16_t darkBrown = ST7735_Color565(101, 67, 33);  
+   uint16_t lightBrown = ST7735_Color565(210, 190, 140);   // Example Tan
+uint16_t darkgreen = ST7735_Color565(34, 85, 34);
+  
   uint32_t buttonclicked = 0;
   __enable_irq();
   ADC_InitTriple(ADC1, 4, 5, 6, ADCVREF_VDDA);
@@ -4318,29 +2370,15 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
     getSwitch = ButtonIn() - 16;
     
       
-      if (vol > 3072){
+      if (vol > 2048){
         ST7735_DrawSmallCircle(64, 30, ST7735_WHITE);
         ST7735_DrawSmallCircle(64, 60, ST7735_BLACK);
         ST7735_DrawSmallCircle(64, 90, ST7735_BLACK);  
         ST7735_DrawSmallCircle(64, 120, ST7735_BLACK);    
       }
-       if (vol <= 3072 && vol > 2048 )
-      {
+       
 
-        ST7735_DrawSmallCircle(64, 30, ST7735_BLACK);
-        ST7735_DrawSmallCircle(64, 60, ST7735_WHITE);
-        ST7735_DrawSmallCircle(64, 90, ST7735_BLACK);  
-        ST7735_DrawSmallCircle(64, 120, ST7735_BLACK); 
-
-      }
-       if (vol <= 2048 && vol > 1024){
-        ST7735_DrawSmallCircle(64, 30, ST7735_BLACK);
-        ST7735_DrawSmallCircle(64, 60, ST7735_BLACK);
-        ST7735_DrawSmallCircle(64, 90, ST7735_WHITE);  
-        ST7735_DrawSmallCircle(64, 120, ST7735_BLACK); 
-      }
-
-       if (vol <= 1024 ){
+       if (vol <= 2048 ){
         ST7735_DrawSmallCircle(64, 30, ST7735_BLACK);
         ST7735_DrawSmallCircle(64, 60, ST7735_BLACK);
         ST7735_DrawSmallCircle(64, 90, ST7735_BLACK);  
@@ -4349,56 +2387,29 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
       
     
 
-    if (vol > 3072 && (getSwitch == 1)){
+    if (vol > 2048 && (getSwitch == 1)){
 
       screen0 = 1;
       chosenLanguage = 5; //E
-      player1Mode = false;
-      actMiniMax = false;
-      bot = false;
+      
 
     }
 
-     if(vol <= 3072 && vol > 2048 && (getSwitch == 1))
-    {
+     
 
-      screen0 = 1;
-      chosenLanguage = 5; //E
-      player1Mode = true;
-      actMiniMax = true;
-      bot = true;
-
-    }
-
-     if(vol <= 2048 && vol > 1024 && (getSwitch == 1))
-    {
-
-      screen0 = 1;
-      chosenLanguage = 10; //E
-      player1Mode = false;
-      actMiniMax = false;
-      bot = false;
-
-    }
-
-     if (vol <= 1024 && (getSwitch == 1)){
+     if (vol <= 2048 && (getSwitch == 1)){
 
       screen0 = 1;
       chosenLanguage = 10; //S
-      player1Mode = true;
-      actMiniMax = true;
-      bot = true;
+      
 
     }
 
     ST7735_SetCursor(3, 3);
     ST7735_OutString("English 2 Players");
-    ST7735_SetCursor(3, 6);
-    ST7735_OutString("English 1 Player");
-    ST7735_SetCursor(3, 9);
-    ST7735_OutString("Espa\xA4ol 2 jugadores");
+    
     ST7735_SetCursor(3, 12);
-    ST7735_OutString("Espa\xA4ol 1 jugador");
+    ST7735_OutString("Espa\xA4ol 2 jugadores");
 
   }
 
@@ -4583,7 +2594,7 @@ ST7735_FillScreen(ST7735_BLACK);  // Clear the screen
 
   }
   else {
-  backgroundcolor = darkBrown;
+  backgroundcolor = darkgreen;
   }
   ST7735_DrawBitmap(0, 157, BlackRook, 16,16);
   
@@ -4695,7 +2706,7 @@ else {
 
 
 
-int main(void) //driver Code 13
+int main(void) 
 {
 
   
@@ -4703,7 +2714,7 @@ int main(void) //driver Code 13
   
 GPIOA->DOUT31_0 |= 0x10000000;
 
-__disable_irq();
+  __disable_irq();
   Clock_Init80MHz(0);
   LaunchPad_Init();
    TimerG12_IntArm(1333333,0);
@@ -4741,16 +2752,11 @@ while(1)
     ST7735_FillScreen(ST7735_WHITE);
 
   }
-  if((agreeddraw != 1) && (blackwon != 1) && (whitewon != 1) && !player1Mode)
+  if((agreeddraw != 1) && (blackwon != 1) && (whitewon != 1))
   {
     joyStickReadings();
   }
   
-
-  else if((agreeddraw != 1) && (blackwon != 1) && (whitewon != 1) && player1Mode)
-  {
-    joyStickReadingsBot();
-  }
   else {
 
     score();
