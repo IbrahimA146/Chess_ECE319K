@@ -1,0 +1,29 @@
+if(!invalidMove)
+    {
+      TimerG0counts = 0;
+      mySysTick_IntArm(7256, 0);
+        TimerG0_IntArm(7256, 0, 0);
+        if(chessboardNum[yf1][xf1] == 12 || chessboardNum[yf1][xf1] == 2)
+        {
+          Sound_Start(2, vol);
+          soundpause = 40;
+        }
+        else if (chessboardNum[yf1][xf1] == 13 || chessboardNum[yf1][xf1] == 3 || chessboardNum[yf1][xf1] == 15 || chessboardNum[yf1][xf1] == 5 || chessboardNum[yf1][xf1] == 19 || chessboardNum[yf1][xf1] == 9) {
+          Sound_Start(1, vol);
+          soundpause = 20;
+        }
+        else {
+        Sound_Start(0, vol);
+        soundpause = 4;
+        }
+        Sound_Init();
+      while(TimerG0counts != soundpause)
+      {
+
+        
+        
+      }
+      mySysTick_IntArm(0, 0);
+        TimerG0_IntArm(0, 1, 0);
+      TimerG0counts = 0;
+    }
